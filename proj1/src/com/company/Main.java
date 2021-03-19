@@ -1,5 +1,7 @@
 package com.company;
 
+import com.company.utils.ChunkWritter;
+
 import java.io.*;
 
 public class Main {
@@ -7,18 +9,20 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
-        ClientInterface cliInt = new ClientInterface();
+        //ClientInterface cliInt = new ClientInterface();
 
-        cliInt.run();
+        //cliInt.run();
+
 
         /*
         System.out.println("hello!");
         byte[] chunk = new byte[64000];
 	// write your code here
-        FileInputStream objReader = new FileInputStream(new File("files/download.gif"));
+        FileInputStream objReader = new FileInputStream(new File("files/spooky_month.gif"));
 
         int numBytes = objReader.read(chunk, 0, 64000);
-        File outputFile = new File("files/f.gif");
+        ChunkWritter.writeChunk(chunk, "files/output");*/
+        /*File outputFile = new File("files/f.gif");
         try (FileOutputStream outputStream = new FileOutputStream(outputFile)) {
             outputStream.write(chunk);
 

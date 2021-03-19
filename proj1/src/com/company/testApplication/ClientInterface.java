@@ -1,4 +1,6 @@
-package com.company;
+package com.company.testApplication;
+
+import com.company.utils.StringVerification;
 
 import java.util.Scanner;
 
