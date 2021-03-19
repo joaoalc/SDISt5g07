@@ -13,11 +13,25 @@ public class ClientInterface {
 
     public void Option(int number){
         if(number == 1){
-            System.out.println("Insert your desired file path. Warning: This is the path you will have to specify when deleting a file.");
-            String path = inputScanner.nextLine();
-            System.out.println("Insert your desired replication degree.");
-            int replicationDegree = parseInt(inputScanner.nextLine());
-            System.out.println("Path: " + path + " replication degree: " + replicationDegree);
+            Boolean valid_path_and_replication = false;
+            while(!valid_path_and_replication) {
+                System.out.println("Insert your desired file path. Warning: This is the path you will have to specify when deleting a file.");
+                String path = inputScanner.nextLine();
+
+                if(!StringVerification.verifyPathExistance(path)) {
+                    System.out.println("Invalid file path. Please try again.");
+                    continue;
+                }
+                System.out.println("Insert your desired replication degree.");
+                int replicationDegree = StringVerification.verifyPositiveInt(inputScanner.nextLine());
+                if(replicationDegree != -1)
+                    valid_path_and_replication = true;
+                else {
+                    System.out.println("Invalid replication degree. Insert file path.");
+                    continue;
+                }
+                System.out.println("Path: " + path + " replication degree: " + replicationDegree);
+            }
         }
     }
 
@@ -29,13 +43,15 @@ public class ClientInterface {
         System.out.println("4-Manage local service storage;");
         System.out.println("5-Retrieve local service state information.");
 
+
         int number;
         while(true) {
-            number = parseInt(inputScanner.nextLine());
-            if(number >= 1 && number <= 5){
+            number = StringVerification.verifyPositiveIntRange(inputScanner.nextLine(), 1, 5);
+            if(number != -1){
                 break;
             }
         }
+
         Option(number);
     }
 
