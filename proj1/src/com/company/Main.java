@@ -7,6 +7,11 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
+        ClientInterface cliInt = new ClientInterface();
+
+        cliInt.run();
+
+        /*
         System.out.println("hello!");
         byte[] chunk = new byte[64000];
 	// write your code here
@@ -19,7 +24,9 @@ public class Main {
 
             //numBytes = objReader.read(chunk, 0, 64000);
             //outputStream.write(chunk, 0, numBytes);
-        }
+        }*/
+
+
         /*
         int numBytes = objReader.read(chunk, 0, 64000);
         System.out.println(numBytes);
