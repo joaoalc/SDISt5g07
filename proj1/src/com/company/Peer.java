@@ -5,6 +5,10 @@ import java.rmi.RemoteException;
 
 public class Peer implements IPeerRemote {
 
+    public Peer(){
+
+    }
+
     @Override
     public void backup(String path, int replication) throws RemoteException {
 
