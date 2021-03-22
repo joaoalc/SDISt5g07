@@ -30,7 +30,7 @@ public class MulticastDataBackup extends MulticastThread{
                 System.out.println(received);
 
 
-                mPub.processMessage(received);
+                //mPub.processMessage(received);
 
                 /*if ("end".equals(received)) {
                     break;

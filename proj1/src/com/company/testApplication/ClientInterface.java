@@ -2,6 +2,7 @@ package com.company.testApplication;
 
 import com.company.utils.StringVerification;
 
+import java.io.IOException;
 import java.util.Scanner;
 
 import static java.lang.Integer.parseInt;
@@ -35,6 +36,17 @@ public class ClientInterface {
                 System.out.println("Path: " + path + " replication degree: " + replicationDegree);
             }
         }
+
+        else if (number == 2) {
+            String path;
+
+            do {
+                System.out.println("Insert your desired file path.");
+                path = inputScanner.nextLine();
+            } while (!StringVerification.verifyPathExistance(path));
+
+            System.out.println("Path: " + path);
+        }
     }
 
     public void run(){
@@ -53,9 +65,11 @@ public class ClientInterface {
                 break;
             }
         }
-
         Option(number);
     }
 
-
+    public static void main(String[] args) {
+        ClientInterface clientInterface = new ClientInterface();
+        clientInterface.run();
+    }
 }
