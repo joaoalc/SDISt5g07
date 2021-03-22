@@ -1,22 +1,19 @@
 package com.company;
 
-import com.company.dataStructures.ChannelInfo;
+import com.company.utils.MessageParser;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 
-public class MulticastThread extends Thread{
-    protected MulticastSocket socket = null;
-    protected byte[] buf = new byte[65536];
+public class MulticastControl extends MulticastThread{
 
-    ChannelInfo name;
 
-    public MulticastThread(String IP, int port){
-        name = new ChannelInfo();
-        name.setInfo(IP, port);
+    public MulticastControl(String IP, int port) {
+        super(IP, port);
     }
 
     public void run() {
@@ -28,9 +25,14 @@ public class MulticastThread extends Thread{
                 DatagramPacket packet = new DatagramPacket(buf, buf.length);
                 System.out.println("Receiving packet.");
                 socket.receive(packet);
-                String received = new String(packet.getData(), 0, packet.getLength());
-                System.out.println(packet.getLength());
-                System.out.println(received);
+                byte[] received = packet.getData();
+
+
+
+                //Print string and packet length
+                ArrayList<String> header = MessageParser.getFirstLineArguments(new String(received));
+                byte[] body = MessageParser.getBody(received);
+
                 /*if ("end".equals(received)) {
                     break;
                 }*/
@@ -48,7 +50,4 @@ public class MulticastThread extends Thread{
         }
     }
 
-    public void storeChunk(){
-
-    }
 }

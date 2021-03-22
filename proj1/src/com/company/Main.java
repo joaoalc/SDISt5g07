@@ -10,7 +10,7 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
-        MulticastThread mThread = new MulticastThread();
+        MulticastThread mThread = new MulticastThread("230.0.0.0", 4446);
 
         mThread.run();
 
