@@ -64,7 +64,7 @@ public class Peer implements IPeerRemote {
             Registry registry = LocateRegistry.getRegistry();
             registry.bind(acessPoint, stub);
 
-            System.err.println("Peer ready");
+            System.out.println("Peer ready");
         } catch (RemoteException | AlreadyBoundException e) {
             e.printStackTrace();
         }
