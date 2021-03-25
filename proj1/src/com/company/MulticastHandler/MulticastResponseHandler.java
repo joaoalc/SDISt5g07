@@ -13,14 +13,8 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class MulticastResponseHandler extends Thread{
-    //ArrayList<byte[]> requestStrings = new ArrayList<>();
-
-    //ArrayList<byte[]> messageStrings = new ArrayList<>();
-
-    String path = "out/meme.jpg";
-
+    String path = "out/files.jpg";
     String senderID;
-
     byte[] request;
 
     MulticastThread MC;
@@ -48,8 +42,9 @@ public class MulticastResponseHandler extends Thread{
 
         ArrayList<String> arguments = MessageParser.getFirstLineArguments(new String(request));
 
-        System.out.println(arguments.get(2));
-        System.out.println(senderID);
+
+
+        //Is this my own message?
         if(arguments.get(2).compareTo(senderID) != 0) {
             if (arguments.get(1).compareTo("PUTCHUNK") == 0) {
                 System.out.println("Putchunk request.");
@@ -77,81 +72,32 @@ public class MulticastResponseHandler extends Thread{
                     baos.write(arr);
                     byte[] b1 = msgNoEndLine.getBytes(StandardCharsets.UTF_8);
                     byte[] b2 = baos.toByteArray();
-                    for(int i = 0; i < b1.length; i++){
-                        System.out.print(b1[i]);
-                    }
-                    System.out.println();
-                    for(int i = 0; i < b2.length; i++){
-                        System.out.print(b2[i]);
-                    }
-                    System.out.println();
                     //byte[] msg = (message).getBytes(StandardCharsets.UTF_8);
                     System.out.println(b2);
                     System.out.println(b2.length);
                     System.out.println(MC.getGroup());
                     System.out.println(MC.getInfo().getPort());
+
+                    randomSleep(100, 400);
+
                     MC.getSocket().send(new DatagramPacket(b2, b2.length, MC.getGroup(), MC.getInfo().getPort()));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
+        }
+        else{
+            System.out.println("Received own message");
+        }
+    }
 
+    void randomSleep(int min, int max){
         Random ra = new Random();
-        int sleep_millisecond =  ra.nextInt((400 - 100) + 1) + 100;
+        int sleep_millisecond =  ra.nextInt((max - min) + 1) + min;
         try {
             Thread.sleep(sleep_millisecond);
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }
-
-
-        /*
-        System.out.println("Running now!");
-        while(true){
-            Random ra = new Random();
-            int sleep_millisecond =  ra.nextInt((400 - 100) + 1) + 100;
-            try {
-                Thread.sleep(sleep_millisecond);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            while(!requestStrings.isEmpty()){
-                System.out.println("Got a request!");
-                byte[] currentRequest = requestStrings.get(requestStrings.size() - 1);
-
-                ArrayList<String> arguments = MessageParser.getFirstLineArguments(new String(currentRequest));
-
-                for(int i = 0; i < arguments.size(); i++){
-                    System.out.println(arguments.get(i));
-                }
-                if(arguments.get(2) != senderID) {
-                    if (arguments.get(1).compareTo("PUTCHUNK") == 0) {
-                        System.out.println("Putchunk request.");
-
-                        byte[] body = MessageParser.getBody(currentRequest);
-                        ChunkWritter.WriteChunk(body, path);
-                        Random r = new Random();
-                        int sleep_milliseconds =  r.nextInt((400 - 100) + 1) + 100;
-                        System.out.println("Sleeping now for " + sleep_milliseconds + " milliseconds");
-                        try {
-                            Thread.sleep(sleep_milliseconds);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        System.out.println("Sending now!");
-                        try {
-                            MCSender.multicast(arguments.get(0) + " STORED " + senderID + " " + arguments.get(3) + " " + arguments.get(4) + "\n\n");
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-                else{
-                    System.out.println("Ignoring own message!");
-                }
-                requestStrings.remove(currentRequest);
-            }*/
-
         }
     }
 
