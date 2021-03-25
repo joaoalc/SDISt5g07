@@ -16,9 +16,9 @@ public class MulticastThread extends Thread{
     ChannelInfo name;
     InetAddress group;
 
-    private MulticastThread MCSocket;
-    private MulticastThread MDBSocket;
-    private MulticastThread MDRSocket;
+    private MulticastThread MC;
+    private MulticastThread MDB;
+    private MulticastThread MDR;
 
     String senderID;
 
@@ -47,9 +47,9 @@ public class MulticastThread extends Thread{
     }
 
     public void setChannelSockets(MulticastThread MCSocket, MulticastThread MDBSocket, MulticastThread MDRSocket){
-        this.MCSocket = MCSocket;
-        this.MDBSocket = MDBSocket;
-        this.MDRSocket = MDRSocket;
+        this.MC = MCSocket;
+        this.MDB = MDBSocket;
+        this.MDR = MDRSocket;
     }
 
 
@@ -67,7 +67,7 @@ public class MulticastThread extends Thread{
                     System.out.print(received.charAt(i));
                 }
                 System.out.println();
-                MulticastResponseHandler packetHandler = new MulticastResponseHandler(senderID, packetData, MCSocket, MDBSocket, MDRSocket);
+                MulticastResponseHandler packetHandler = new MulticastResponseHandler(senderID, packetData, MC, MDB, MDR);
                 packetHandler.start();
                 /*if ("end".equals(received)) {
                     break;

@@ -47,7 +47,10 @@ public class MulticastResponseHandler extends Thread{
 
 
         ArrayList<String> arguments = MessageParser.getFirstLineArguments(new String(request));
-        if(arguments.get(2) != senderID) {
+
+        System.out.println(arguments.get(2));
+        System.out.println(senderID);
+        if(arguments.get(2).compareTo(senderID) != 0) {
             if (arguments.get(1).compareTo("PUTCHUNK") == 0) {
                 System.out.println("Putchunk request.");
 
@@ -83,6 +86,10 @@ public class MulticastResponseHandler extends Thread{
                     }
                     System.out.println();
                     //byte[] msg = (message).getBytes(StandardCharsets.UTF_8);
+                    System.out.println(b2);
+                    System.out.println(b2.length);
+                    System.out.println(MC.getGroup());
+                    System.out.println(MC.getInfo().getPort());
                     MC.getSocket().send(new DatagramPacket(b2, b2.length, MC.getGroup(), MC.getInfo().getPort()));
                 } catch (IOException e) {
                     e.printStackTrace();

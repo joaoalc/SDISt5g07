@@ -16,6 +16,7 @@ public class MessageParser {
         byte[] doubleCRLF = {0x0D, 0x0A, 0x0D, 0x0A};
         int endOfHeader = message.indexOf(new String(doubleCRLF)); //Index is at the start of CRLF
         if(endOfHeader == -1){
+            System.out.println("No end of header found! This should not happen!");
             return null;
         }
         String msgHeader = message.substring(0, endOfHeader);

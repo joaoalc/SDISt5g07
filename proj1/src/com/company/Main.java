@@ -29,7 +29,6 @@ public class Main {
         MC.start();
         MDB.start();
         MDR.start();
-        System.out.println("AAA");
 
         //MulticastDataBackup MDBThread = new MulticastDataBackup("230.0.0.0", 4446);
 

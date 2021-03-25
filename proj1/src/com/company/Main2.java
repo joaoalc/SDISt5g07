@@ -36,16 +36,15 @@ public class Main2 {
 
         System.out.println("");
 
-        MulticastThread MC = new MulticastThread("230.0.0.0", 4446, "2");
-        MulticastThread MDB = new MulticastThread("230.0.0.1", 4446, "2");
-        MulticastThread MDR = new MulticastThread("230.0.0.2", 4446, "2");
+        MulticastThread MC = new MulticastThread("230.0.0.0", 4446, "12312312312312312312312312312312");
+        MulticastThread MDB = new MulticastThread("230.0.0.1", 4446, "12312312312312312312312312312312");
+        MulticastThread MDR = new MulticastThread("230.0.0.2", 4446, "12312312312312312312312312312312");
 
         MC.start();
         MDB.start();
         MDR.start();
 
         MDB.sendMessage(bytes);
-        System.out.println("BBB");
 
         /*
         MulticastPublisher mpub = new MulticastPublisher();
