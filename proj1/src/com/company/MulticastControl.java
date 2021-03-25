@@ -12,8 +12,8 @@ import java.util.ArrayList;
 public class MulticastControl extends MulticastThread{
 
 
-    public MulticastControl(String IP, int port) {
-        super(IP, port);
+    public MulticastControl(String IP, int port, String senderID) throws IOException {
+        super(IP, port, senderID);
     }
 
     public void run() {

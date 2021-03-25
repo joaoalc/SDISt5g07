@@ -1,5 +1,7 @@
 package com.company;
 
+import com.company.MulticastHandler.MulticastResponseHandler;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -7,11 +9,10 @@ import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 
 public class MulticastDataBackup extends MulticastThread{
-    MulticastPublisher mPub;
+    MulticastResponseHandler mRes;
 
-    public MulticastDataBackup(String IP, int port, MulticastPublisher mPub) {
-        super(IP, port);
-        this.mPub = mPub;
+    public MulticastDataBackup(String IP, int port, String senderID) throws IOException {
+        super(IP, port, senderID);
     }
 
     public void run() {
@@ -30,7 +31,6 @@ public class MulticastDataBackup extends MulticastThread{
                 System.out.println(received);
 
 
-                //mPub.processMessage(received);
 
                 /*if ("end".equals(received)) {
                     break;

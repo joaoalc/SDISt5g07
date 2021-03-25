@@ -9,7 +9,8 @@ import java.util.Arrays;
 public class MessageParser {
 
 
-    //TODO: fix, probably byte[] to string conversion breaking the endOfHeader search (at the function call)
+    //TODO: fix, probably byte[] to string conversion breaking the endOfHeader search (at the function call)?
+    //TODO: Probably an error if the string ends in the first 0x0D 0x0A 0x0D 0x0A
     public static ArrayList<String> getFirstLineArguments(String message){
         byte[] CRLF = {0x0D, 0x0A};
         byte[] doubleCRLF = {0x0D, 0x0A, 0x0D, 0x0A};

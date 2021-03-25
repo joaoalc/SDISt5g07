@@ -1,19 +1,39 @@
 package com.company;
 
+import com.company.MulticastHandler.MulticastResponseHandler;
 import com.company.testApplication.ClientInterface;
 import com.company.utils.ChunkWritter;
 
 import java.io.*;
+import java.net.MulticastSocket;
 
 public class Main {
 
 
     public static void main(String[] args) throws IOException {
 
-        MulticastThread mThread = new MulticastThread("230.0.0.0", 4446);
+        //MulticastThread mThread = new MulticastThread("230.0.0.0", 4446);
 
-        mThread.run();
+        //mThread.run();
 
+
+        MulticastThread MC = new MulticastThread("230.0.0.0", 4446, "1");
+        MulticastThread MDB = new MulticastThread("230.0.0.1", 4446, "1");
+        MulticastThread MDR = new MulticastThread("230.0.0.2", 4446, "1");
+
+
+        MC.setChannelSockets(MC, MDB, MDR);
+        MDB.setChannelSockets(MC, MDB, MDR);
+        MDR.setChannelSockets(MC, MDB, MDR);
+
+        MC.start();
+        MDB.start();
+        MDR.start();
+        System.out.println("AAA");
+
+        //MulticastDataBackup MDBThread = new MulticastDataBackup("230.0.0.0", 4446);
+
+        //MDBThread.start();
         //ClientInterface cliInt = new ClientInterface();
 
         //cliInt.run();

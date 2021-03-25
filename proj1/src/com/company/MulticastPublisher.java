@@ -1,4 +1,4 @@
-package com.company;
+/*package com.company;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -21,17 +21,11 @@ public class MulticastPublisher {
         socket.close();
     }
 
-    /*public void sendHeader(String version, String messageType){
-
-    }*/
 
     public void sendBackupHeader(byte[] message){
 
-        /*byte[] bytes = new byte[message.length() + 64000];
-        for(int i = 0; i < message.length(); i++) {
-            bytes[i] = (byte) message.charAt(i);
-            System.out.println(bytes[i]);
-        }*/
+
+
         try {
             if(socket == null) {
                 socket = new DatagramSocket();
@@ -39,10 +33,12 @@ public class MulticastPublisher {
             if(group == null){
                 group = InetAddress.getByName("230.0.0.0");
             }
+            System.out.println("Sending message now");
+            System.out.println(message.toString());
             socket.send(new DatagramPacket(message, message.length, group, 4446));
         }
         catch(IOException e){
             System.out.println("[MulticastPublisher] Cannot send through the socket; IO exception.");
         }
     }
-}
+}*/
