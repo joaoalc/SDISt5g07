@@ -87,7 +87,7 @@ public class MulticastThread extends Thread{
         }
     }
 
-    public void sendMessage(byte[] message) throws IOException {
-        socket.send(new DatagramPacket(message, message.length, group, name.getPort()));
+    public void sendMessage(byte[] message, int messageLength) throws IOException {
+        socket.send(new DatagramPacket(message, messageLength, group, name.getPort()));
     }
 }

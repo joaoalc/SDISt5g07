@@ -9,7 +9,16 @@ public class Main2 {
         //MulticastPublisher mpub = new MulticastPublisher();
         //mpub.multicast("despacito lmao");
 
+        MulticastThread MC = new MulticastThread("230.0.0.0", 4446, "12312312312312312312312312312312");
+        MulticastThread MDB = new MulticastThread("230.0.0.1", 4446, "12312312312312312312312312312312");
+        MulticastThread MDR = new MulticastThread("230.0.0.2", 4446, "12312312312312312312312312312312");
 
+        MC.start();
+        MDB.start();
+        MDR.start();
+        Peer peer = new Peer(MC, MDB, MDR, "12312312312312312312312312312312");
+        peer.backup("files/spooky_month.gif", 2, "1.0");
+        /*
         String message = "1.0 " + "PUTCHUNK " + "12312312312312312312312312312312 " + args[0] + " 0 " + "1";
 
         byte[] bytes = new byte[message.length() + 4 + 64000];
@@ -44,7 +53,7 @@ public class Main2 {
         MDB.start();
         MDR.start();
 
-        MDB.sendMessage(bytes);
+        MDB.sendMessage(bytes);*/
 
         /*
         MulticastPublisher mpub = new MulticastPublisher();

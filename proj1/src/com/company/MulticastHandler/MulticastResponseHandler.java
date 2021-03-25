@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class MulticastResponseHandler extends Thread{
-    String path = "out/files.jpg";
+    String path = "files/meme";
     String senderID;
     byte[] request;
 
@@ -50,7 +50,7 @@ public class MulticastResponseHandler extends Thread{
                 System.out.println("Putchunk request.");
 
                 byte[] body = MessageParser.getBody(request);
-                ChunkWritter.WriteChunk(body, path);
+                ChunkWritter.WriteChunk(body, path + arguments.get(4));
                 Random r = new Random();
                 int sleep_milliseconds =  r.nextInt((400 - 100) + 1) + 100;
                 System.out.println("Sleeping now for " + sleep_milliseconds + " milliseconds");
@@ -85,6 +85,7 @@ public class MulticastResponseHandler extends Thread{
                     e.printStackTrace();
                 }
             }
+
         }
         else{
             System.out.println("Received own message");
