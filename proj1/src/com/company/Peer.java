@@ -42,9 +42,11 @@ public class Peer implements IPeerRemote {
 
         //TODO: Repeat one more time if size is multiple of 64000
         FileInputStream objReader = new FileInputStream(file);
+
+
         int numBytes = 64000;
         int chunkNo = 0;
-        while(numBytes > 0) {
+        while(numBytes == 64000) {
             //Create byte array
             String headerString = version + " " + "PUTCHUNK" + " " + senderID + " " + "1231231231231231231231231231231212312312312312312312312312312312" + " " + chunkNo + " " + replication;
             //byte[] header = headerString.getBytes(StandardCharsets.UTF_8);
@@ -60,12 +62,19 @@ public class Peer implements IPeerRemote {
 
             System.out.println("File size: " + objReader.available());
             numBytes = objReader.read(currentMessage, headerString.length() + 4, 64000);
+            if(numBytes == -1){
+                numBytes = 0;
+            }
             System.out.println(currentMessage.length);
-            MDB.sendMessage(currentMessage, numBytes + headerString.length());
-            Random ra = new Random();
-            int sleep_millisecond =  1000;
+            System.out.println("Number of bytes: " + numBytes);
+            System.out.println(headerString.length() + 4);
+            /*for(int i = 0; i < numBytes + 4 + headerString.length()){
+
+            }*/
+            MDB.sendMessage(currentMessage, numBytes + 4 + headerString.length());
+
             try {
-                Thread.sleep(sleep_millisecond);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

@@ -2,12 +2,14 @@ package com.company;
 
 import com.company.MulticastHandler.MulticastResponseHandler;
 import com.company.dataStructures.ChannelInfo;
+import com.company.utils.MessageParser;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 
 public class MulticastThread extends Thread{
     protected MulticastSocket socket = null;
@@ -61,10 +63,13 @@ public class MulticastThread extends Thread{
                 socket.receive(packet);
                 String received = new String(packet.getData(), 0, packet.getLength());
 
-                byte[] packetData = packet.getData();
-                int a = Integer.min(100, received.length());
-                for(int i = 0; i < a; i++){
-                    System.out.print(received.charAt(i));
+                byte[] packetData = new byte[packet.getLength()];
+                System.arraycopy(packet.getData(), 0, packetData, 0, packet.getLength());
+
+                System.out.println("Size: " + packetData.length);
+                ArrayList<String> args = MessageParser.getFirstLineArguments(received);
+                for(int i = 0; i < args.size(); i++){
+                    System.out.print(args.get(i) + " ");
                 }
                 System.out.println();
                 MulticastResponseHandler packetHandler = new MulticastResponseHandler(senderID, packetData, MC, MDB, MDR);

@@ -50,6 +50,7 @@ public class MulticastResponseHandler extends Thread{
                 System.out.println("Putchunk request.");
 
                 byte[] body = MessageParser.getBody(request);
+                System.out.println("Body size: " + body.length);
                 ChunkWritter.WriteChunk(body, path + arguments.get(4));
                 Random r = new Random();
                 int sleep_milliseconds =  r.nextInt((400 - 100) + 1) + 100;
