@@ -5,8 +5,15 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.regex.Pattern;
 
 public class MessageParser {
+
+    private static final Pattern versionPattern = Pattern.compile("[0-9]\\.[0-9]");
+    //private static final Pattern versionPattern1 = Pattern.compile("0\\.0");
+    private static final Pattern fileIdPattern = Pattern.compile("([0-9A-Fa-f]{2}){32}");
+    private static final Pattern chunkNoPattern = Pattern.compile("[0-9]{1,6}");
+    private static final Pattern replicationDegPattern = Pattern.compile("[0-9]");
 
 
     //TODO: fix, probably byte[] to string conversion breaking the endOfHeader search (at the function call)?
@@ -47,7 +54,45 @@ public class MessageParser {
                 }
             }
         }
+
+        try {
+            messageFieldsAreValid(arr_new);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+
         return arr_new;
+    }
+
+    public static void messageFieldsAreValid(ArrayList<String> messageFields) throws IllegalArgumentException {
+
+        if (messageFields.size() < 6) {
+            throw new IllegalArgumentException("Number of fields in message should be less than 6 but " + messageFields.size() + "was given");
+        }
+
+        // Check version
+        String version = messageFields.get(0);
+        if (!versionPattern.matcher(version).matches()) {
+            throw new IllegalArgumentException("Invalid version format: " + version);
+        }
+
+        // Check file Id
+        String fileId = messageFields.get(3);
+        if (!fileIdPattern.matcher(fileId).matches()) {
+            throw new IllegalArgumentException("Invalid file id format: " + fileId);
+        }
+
+        // Check chunk number
+        String chunkNo = messageFields.get(4);
+        if (!chunkNoPattern.matcher(chunkNo).matches()) {
+            throw new IllegalArgumentException("Invalid file id format: " + chunkNo);
+        }
+
+        // Check fileId
+        String replicationDeg = messageFields.get(5);
+        if (!replicationDegPattern.matcher(replicationDeg).matches()) {
+            throw new IllegalArgumentException("Invalid replication format: " + version);
+        }
     }
 
     public static byte[] getBody(byte[] message){
@@ -71,7 +116,7 @@ public class MessageParser {
 
 
     public static void main(String[] args) throws IOException {
-        String message = "1.0 " + "PUTCHUNK " + "12312312312312312312312312312312 " + args[0] + " 0 " + "1";
+        String message = "1.0 " + "PUTCHUNK " + "12312312312312312312312312312312 " + "B2".repeat(32) + " 0 " + "1";
 
         byte[] bytes = new byte[message.length() + 4 + 64000];
         bytes[message.length()] = 0x0D;
