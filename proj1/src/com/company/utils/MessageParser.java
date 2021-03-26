@@ -66,8 +66,8 @@ public class MessageParser {
 
     public static void messageFieldsAreValid(ArrayList<String> messageFields) throws IllegalArgumentException {
 
-        if (messageFields.size() < 6) {
-            throw new IllegalArgumentException("Number of fields in message should be less than 6 but " + messageFields.size() + "was given");
+        if (messageFields.size() < 5) {
+            throw new IllegalArgumentException("Number of fields in message should be 5 or more but " + messageFields.size() + "was given");
         }
 
         // Check version
@@ -89,9 +89,11 @@ public class MessageParser {
         }
 
         // Check fileId
-        String replicationDeg = messageFields.get(5);
-        if (!replicationDegPattern.matcher(replicationDeg).matches()) {
-            throw new IllegalArgumentException("Invalid replication format: " + version);
+        if(messageFields.size() >= 6){
+            String replicationDeg = messageFields.get(5);
+            if (!replicationDegPattern.matcher(replicationDeg).matches()) {
+                throw new IllegalArgumentException("Invalid replication format: " + version);
+            }
         }
     }
 
@@ -104,8 +106,10 @@ public class MessageParser {
 
         for(int i = 0; i < message.length; i++){
             if(message[i] == 0x0D){
-                if(message[i+1] == 0x0A && message[i+2] == 0x0D && message[i+3] == 0x0A){
-                    number = i;
+                if(message.length >= i + 4) {
+                    if (message[i + 1] == 0x0A && message[i + 2] == 0x0D && message[i + 3] == 0x0A) {
+                        number = i;
+                    }
                 }
             }
         }
