@@ -9,10 +9,11 @@ import java.util.regex.Pattern;
 
 public class MessageParser {
 
-    private static final Pattern versionPattern = Pattern.compile("[1-9].[1-9]");
-    private static final Pattern fileIdPattern = Pattern.compile("([1-9A-Fa-f]{2}){32}");
+    private static final Pattern versionPattern = Pattern.compile("[0-9]\\.[0-9]");
+    //private static final Pattern versionPattern1 = Pattern.compile("0\\.0");
+    private static final Pattern fileIdPattern = Pattern.compile("([0-9A-Fa-f]{2}){32}");
     private static final Pattern chunkNoPattern = Pattern.compile("[0-9]{1,6}");
-    private static final Pattern replicationDegPattern = Pattern.compile("[1-9]");
+    private static final Pattern replicationDegPattern = Pattern.compile("[0-9]");
 
 
     //TODO: fix, probably byte[] to string conversion breaking the endOfHeader search (at the function call)?
@@ -59,14 +60,14 @@ public class MessageParser {
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
-        
+
         return arr_new;
     }
 
     public static void messageFieldsAreValid(ArrayList<String> messageFields) throws IllegalArgumentException {
 
-        if (messageFields.size() != 6) {
-            throw new IllegalArgumentException("Number of fields in message should be 6 but " + messageFields.size() + "was given");
+        if (messageFields.size() < 6) {
+            throw new IllegalArgumentException("Number of fields in message should be less than 6 but " + messageFields.size() + "was given");
         }
 
         // Check version
@@ -115,7 +116,7 @@ public class MessageParser {
 
 
     public static void main(String[] args) throws IOException {
-        String message = "1.0 " + "PUTCHUNK " + "12312312312312312312312312312312 " + args[0] + " 0 " + "1";
+        String message = "1.0 " + "PUTCHUNK " + "12312312312312312312312312312312 " + "B2".repeat(32) + " 0 " + "1";
 
         byte[] bytes = new byte[message.length() + 4 + 64000];
         bytes[message.length()] = 0x0D;
