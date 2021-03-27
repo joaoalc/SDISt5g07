@@ -34,6 +34,9 @@ public class MulticastThread extends Thread{
         group = InetAddress.getByName(name.getIP());
         socket.joinGroup(group);
         this.senderID = senderID;
+        System.setProperty("file.encoding", "US-ASCII");
+
+        System.out.println("The charset used is :" + System.getProperty("file.encoding"));
     }
 
     public MulticastSocket getSocket() {

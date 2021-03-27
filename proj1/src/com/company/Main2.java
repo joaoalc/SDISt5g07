@@ -17,7 +17,7 @@ public class Main2 {
         MDB.start();
         MDR.start();
         Peer peer = new Peer(MC, MDB, MDR, "12312312312312312312312312312312");
-        peer.backup("files/f", 2, "1.0");
+        peer.backup("files/spooky_month.gif", 2, "1.0");
         /*
         String message = "1.0 " + "PUTCHUNK " + "12312312312312312312312312312312 " + args[0] + " 0 " + "1";
 

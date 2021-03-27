@@ -30,6 +30,9 @@ public class MulticastResponseHandler extends Thread{
         this.MC = MC;
         this.MDB = MDB;
         this.MDR = MDR;
+        System.setProperty("file.encoding", "US-ASCII");
+
+        System.out.println("The charset used is :" + System.getProperty("file.encoding"));
     }
     /*
     public void AddMessage(byte[] message){

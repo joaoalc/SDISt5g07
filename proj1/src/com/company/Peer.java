@@ -1,18 +1,28 @@
 package com.company;
 
+import com.company.dataStructures.FileInfo;
+import com.company.dataStructures.FileInfos;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
 public class Peer implements IPeerRemote {
+
+
+    //ArrayList<FileInfo> fileInfos = new ArrayList<FileInfo>();
+    FileInfos fileInfos = new FileInfos();
 
     private MulticastThread MC, MDB, MDR;
 
@@ -27,6 +37,11 @@ public class Peer implements IPeerRemote {
 
     @Override
     public void backup(String path, int replication, String version) throws IOException {
+
+        System.setProperty("file.encoding", "US-ASCII");
+
+        System.out.println("The charset used is :" + System.getProperty("file.encoding"));
+        // Get the default charset of the machine
         // TODO: implement this
         File file = new File(path);
         if(!file.exists()){
@@ -71,7 +86,8 @@ public class Peer implements IPeerRemote {
             /*for(int i = 0; i < numBytes + 4 + headerString.length()){
 
             }*/
-            MDB.sendMessage(currentMessage, numBytes + 4 + headerString.length());
+            chunkBackupProtocol(currentMessage, chunkNo, numBytes + 4 + headerString.length(), replication, path);
+            //MDB.sendMessage(currentMessage, numBytes + 4 + headerString.length());
 
             try {
                 Thread.sleep(1000);
@@ -85,6 +101,23 @@ public class Peer implements IPeerRemote {
 
         //String message = "1.0 " + "PUTCHUNK " + "12312312312312312312312312312312 " + args[0] + " 0 " + "1";
         //backupChunk()
+    }
+
+    public void chunkBackupProtocol(byte[] message, int chunkNo, int bytesToSend, int replicationDeg, String filePath) throws IOException {
+        for(int i = 0; i < 5; i++) {
+            if(fileInfos.findByFilePath(filePath).usersBackingUp.size() == chunkNo){
+                fileInfos.findByFilePath(filePath).usersBackingUp.add(new ArrayList<>());
+            }
+            if(fileInfos.findByFilePath(filePath).usersBackingUp.get(chunkNo).size() >= replicationDeg){
+                break;
+            }
+            MDB.sendMessage(message, bytesToSend);
+            try {
+                Thread.sleep(1000 * (int) (Math.pow(2, i)));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
