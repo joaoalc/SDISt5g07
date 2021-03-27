@@ -33,6 +33,7 @@ public class FileInfo {
     public FileInfo(String filePath) throws NoSuchAlgorithmException {
         this.filePath = filePath;
         this.fileID = toHexString(getSHA(filePath));
+        this.usersBackingUp = new ArrayList<>();
     }
 
 

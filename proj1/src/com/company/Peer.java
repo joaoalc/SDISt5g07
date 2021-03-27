@@ -14,6 +14,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -36,7 +37,7 @@ public class Peer implements IPeerRemote {
     }
 
     @Override
-    public void backup(String path, int replication, String version) throws IOException {
+    public void backup(String path, int replication, String version) throws IOException, NoSuchAlgorithmException {
 
         System.setProperty("file.encoding", "US-ASCII");
 
@@ -86,6 +87,10 @@ public class Peer implements IPeerRemote {
             /*for(int i = 0; i < numBytes + 4 + headerString.length()){
 
             }*/
+            FileInfo fileInfo = new FileInfo(path);
+            fileInfos.addFile(fileInfo);
+            System.out.println(fileInfo.usersBackingUp.size());
+            System.out.println(fileInfos.findByFilePath(path).usersBackingUp.size());
             chunkBackupProtocol(currentMessage, chunkNo, numBytes + 4 + headerString.length(), replication, path);
             //MDB.sendMessage(currentMessage, numBytes + 4 + headerString.length());
 
