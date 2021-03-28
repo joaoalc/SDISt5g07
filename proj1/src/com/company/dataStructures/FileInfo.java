@@ -67,4 +67,15 @@ public class FileInfo {
         return hexString.toString();
     }
 
+    public void addUser(String userID, int chunk) {
+        boolean repeat = false;
+        for(int i = 0; i < usersBackingUp.get(chunk).size(); i++){
+            if((usersBackingUp.get(chunk)).get(i).compareTo(userID) == 0){
+                repeat = true;
+            }
+        }
+        if(!repeat) {
+            usersBackingUp.get(chunk).add(userID);
+        }
+    }
 }

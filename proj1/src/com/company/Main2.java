@@ -10,14 +10,26 @@ public class Main2 {
         //MulticastPublisher mpub = new MulticastPublisher();
         //mpub.multicast("despacito lmao");
 
-        MulticastThread MC = new MulticastThread("230.0.0.0", 4446, "12312312312312312312312312312312");
-        MulticastThread MDB = new MulticastThread("230.0.0.1", 4446, "12312312312312312312312312312312");
-        MulticastThread MDR = new MulticastThread("230.0.0.2", 4446, "12312312312312312312312312312312");
+        MulticastThread MC = new MulticastThread("230.0.0.0", 4446, "5", "MC");
+        MulticastThread MDB = new MulticastThread("230.0.0.1", 4446, "5", "MDB");
+        MulticastThread MDR = new MulticastThread("230.0.0.2", 4446, "5", "MDR");
+
+
+        Peer peer = new Peer(MC, MDB, MDR, "5");
+
+        MC.setChannelSockets(MC, MDB, MDR);
+        MDB.setChannelSockets(MC, MDB, MDR);
+        MDR.setChannelSockets(MC, MDB, MDR);
+
+        MC.setPeer(peer);
+        MDB.setPeer(peer);
+        MDR.setPeer(peer);
+
 
         MC.start();
         MDB.start();
         MDR.start();
-        Peer peer = new Peer(MC, MDB, MDR, "12312312312312312312312312312312");
+
         peer.backup("files/spooky_month.gif", 2, "1.0");
         /*
         String message = "1.0 " + "PUTCHUNK " + "12312312312312312312312312312312 " + args[0] + " 0 " + "1";

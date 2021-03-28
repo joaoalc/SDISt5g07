@@ -16,15 +16,19 @@ public class Main {
 
         //mThread.run();
 
+        MulticastThread MC = new MulticastThread("230.0.0.0", 4446, args[0], "MC");
+        MulticastThread MDB = new MulticastThread("230.0.0.1", 4446, args[0], "MDB");
+        MulticastThread MDR = new MulticastThread("230.0.0.2", 4446, args[0], "MDR");
 
-        MulticastThread MC = new MulticastThread("230.0.0.0", 4446, "1");
-        MulticastThread MDB = new MulticastThread("230.0.0.1", 4446, "1");
-        MulticastThread MDR = new MulticastThread("230.0.0.2", 4446, "1");
-
+        Peer peer = new Peer(MC, MDB, MDR, args[0]);
 
         MC.setChannelSockets(MC, MDB, MDR);
         MDB.setChannelSockets(MC, MDB, MDR);
         MDR.setChannelSockets(MC, MDB, MDR);
+
+        MC.setPeer(peer);
+        MDB.setPeer(peer);
+        MDR.setPeer(peer);
 
         MC.start();
         MDB.start();

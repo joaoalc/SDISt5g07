@@ -38,6 +38,8 @@ public class Peer implements IPeerRemote {
 
     @Override
     public void backup(String path, int replication, String version) throws IOException, NoSuchAlgorithmException {
+        //Add the file to the list of your files that have been backed up
+        FileInfo currentFileInfo = fileInfos.addFile(new FileInfo(path));
 
         System.setProperty("file.encoding", "US-ASCII");
 
@@ -62,9 +64,11 @@ public class Peer implements IPeerRemote {
 
         int numBytes = 64000;
         int chunkNo = 0;
+        String fileID = currentFileInfo.fileID;
+
         while(numBytes == 64000) {
             //Create byte array
-            String headerString = version + " " + "PUTCHUNK" + " " + senderID + " " + "1231231231231231231231231231231212312312312312312312312312312312" + " " + chunkNo + " " + replication;
+            String headerString = version + " " + "PUTCHUNK" + " " + senderID + " " + fileID + " " + chunkNo + " " + replication;
             //byte[] header = headerString.getBytes(StandardCharsets.UTF_8);
             byte[] currentMessage = new byte[headerString.length() + 4 + 64000];
 
@@ -76,14 +80,10 @@ public class Peer implements IPeerRemote {
             currentMessage[headerString.length() + 2] = 0x0D;
             currentMessage[headerString.length() + 3] = 0x0A;
 
-            System.out.println("File size: " + objReader.available());
             numBytes = objReader.read(currentMessage, headerString.length() + 4, 64000);
             if(numBytes == -1){
                 numBytes = 0;
             }
-            System.out.println(currentMessage.length);
-            System.out.println("Number of bytes: " + numBytes);
-            System.out.println(headerString.length() + 4);
             /*for(int i = 0; i < numBytes + 4 + headerString.length()){
 
             }*/
@@ -91,6 +91,8 @@ public class Peer implements IPeerRemote {
             fileInfos.addFile(fileInfo);
             System.out.println(fileInfo.usersBackingUp.size());
             System.out.println(fileInfos.findByFilePath(path).usersBackingUp.size());
+
+            currentFileInfo.usersBackingUp.add(new ArrayList<>());
             chunkBackupProtocol(currentMessage, chunkNo, numBytes + 4 + headerString.length(), replication, path);
             //MDB.sendMessage(currentMessage, numBytes + 4 + headerString.length());
 
@@ -109,18 +111,22 @@ public class Peer implements IPeerRemote {
     }
 
     public void chunkBackupProtocol(byte[] message, int chunkNo, int bytesToSend, int replicationDeg, String filePath) throws IOException {
-        for(int i = 0; i < 5; i++) {
-            if(fileInfos.findByFilePath(filePath).usersBackingUp.size() == chunkNo){
+        for(int i = 0; i <= 4; i++) {
+            /*if(fileInfos.findByFilePath(filePath).usersBackingUp.size() == chunkNo){
                 fileInfos.findByFilePath(filePath).usersBackingUp.add(new ArrayList<>());
-            }
+            }*/
+            System.out.println("Current replication degree: " + fileInfos.findByFilePath(filePath).usersBackingUp.get(chunkNo).size());
             if(fileInfos.findByFilePath(filePath).usersBackingUp.get(chunkNo).size() >= replicationDeg){
                 break;
             }
             MDB.sendMessage(message, bytesToSend);
-            try {
-                Thread.sleep(1000 * (int) (Math.pow(2, i)));
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            if(i < 4) {
+                try {
+                    System.out.println("Sleeping now for " + Math.pow(2, i) + " seconds.");
+                    Thread.sleep(1000 * (int) (Math.pow(2, i)));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -172,5 +178,15 @@ public class Peer implements IPeerRemote {
         } catch (RemoteException | AlreadyBoundException e) {
             e.printStackTrace();
         }*/
+    }
+
+    public void addStoredPeer(String fileID, String userID, int chunkNo) {
+        //fileInfos.addFile(new FileInfo("", fileID));
+        FileInfo a = fileInfos.findByFileID(fileID);
+        if(a == null){
+            System.out.println("No file found.");
+            return;
+        }
+        fileInfos.findByFileID(fileID).addUser(userID, chunkNo);
     }
 }

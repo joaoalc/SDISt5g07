@@ -22,11 +22,16 @@ public class MulticastThread extends Thread{
     private MulticastThread MDB;
     private MulticastThread MDR;
 
+    //TODO: Use this to know which channel the message comes from
+    String channelType;
+
     String senderID;
 
+    public Peer peer;
 
 
-    public MulticastThread(String IP, int port, String senderID) throws IOException {
+
+    public MulticastThread(String IP, int port, String senderID, String channelType) throws IOException {
         name = new ChannelInfo();
         name.setInfo(IP, port);
 
@@ -34,9 +39,8 @@ public class MulticastThread extends Thread{
         group = InetAddress.getByName(name.getIP());
         socket.joinGroup(group);
         this.senderID = senderID;
+        this.channelType = channelType;
         System.setProperty("file.encoding", "US-ASCII");
-
-        System.out.println("The charset used is :" + System.getProperty("file.encoding"));
     }
 
     public MulticastSocket getSocket() {
@@ -57,6 +61,9 @@ public class MulticastThread extends Thread{
         this.MDR = MDRSocket;
     }
 
+    public void setPeer(Peer peer){
+        this.peer = peer;
+    }
 
     public void run() {
         try{
@@ -69,7 +76,7 @@ public class MulticastThread extends Thread{
                 byte[] packetData = new byte[packet.getLength()];
                 System.arraycopy(packet.getData(), 0, packetData, 0, packet.getLength());
 
-                System.out.println("Size: " + packetData.length);
+                //System.out.println("Size: " + packetData.length);
                 ArrayList<String> args = MessageParser.getFirstLineArguments(received);
                 for(int i = 0; i < args.size(); i++){
                     System.out.print(args.get(i) + " ");

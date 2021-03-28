@@ -76,11 +76,10 @@ public class MulticastResponseHandler extends Thread{
                     baos.write(arr);
                     byte[] b1 = msgNoEndLine.getBytes(StandardCharsets.UTF_8);
                     byte[] b2 = baos.toByteArray();
-                    //byte[] msg = (message).getBytes(StandardCharsets.UTF_8);
-                    System.out.println(b2);
+                    /*System.out.println(b2);
                     System.out.println(b2.length);
                     System.out.println(MC.getGroup());
-                    System.out.println(MC.getInfo().getPort());
+                    System.out.println(MC.getInfo().getPort());*/
 
                     randomSleep(100, 400);
 
@@ -89,10 +88,14 @@ public class MulticastResponseHandler extends Thread{
                     e.printStackTrace();
                 }
             }
+            else if(arguments.get(1).compareTo("STORED") == 0){
+                //Version STORED SenderID FileID ChunkNo
+                MC.peer.addStoredPeer(arguments.get(3), arguments.get(2), Integer.parseInt(arguments.get(4)));
+            }
 
         }
         else{
-            System.out.println("Received own message");
+            //System.out.println("Received own message");
         }
     }
 

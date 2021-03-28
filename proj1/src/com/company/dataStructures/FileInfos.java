@@ -19,10 +19,23 @@ public class FileInfos {
         return null;
     }
 
-    public void addFile(FileInfo fileInfo) {
-        if(findByFilePath(fileInfo.filePath) == null){
-            fileInfos.add(fileInfo);
+    public FileInfo findByFileID(String fileID) {
+        for(int i = 0; i < fileInfos.size(); i++){
+            if(fileInfos.get(i).fileID.compareTo(fileID) == 0){
+                return fileInfos.get(i);
+            }
         }
+        return null;
+    }
+
+
+    public FileInfo addFile(FileInfo fileInfo) {
+        FileInfo a = findByFilePath(fileInfo.filePath);
+        if(a == null){
+            fileInfos.add(fileInfo);
+            return fileInfo;
+        }
+        return a;
 
     }
 }
