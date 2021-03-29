@@ -1,6 +1,7 @@
 package com.company;
 
 import com.company.MulticastHandler.MulticastResponseHandler;
+import com.company.dataStructures.PeerStorage;
 import com.company.testApplication.ClientInterface;
 import com.company.utils.ChunkWritter;
 
@@ -11,16 +12,18 @@ public class Main {
 
 
     public static void main(String[] args) throws IOException {
-
+    String senderID = args[0];
         //MulticastThread mThread = new MulticastThread("230.0.0.0", 4446);
 
         //mThread.run();
 
-        MulticastThread MC = new MulticastThread("230.0.0.0", 4446, args[0], "MC");
-        MulticastThread MDB = new MulticastThread("230.0.0.1", 4446, args[0], "MDB");
-        MulticastThread MDR = new MulticastThread("230.0.0.2", 4446, args[0], "MDR");
+        MulticastThread MC = new MulticastThread("230.0.0.0", 4446, senderID, "MC");
+        MulticastThread MDB = new MulticastThread("230.0.0.1", 4446, senderID, "MDB");
+        MulticastThread MDR = new MulticastThread("230.0.0.2", 4446, senderID, "MDR");
 
-        Peer peer = new Peer(MC, MDB, MDR, args[0]);
+        PeerStorage peerStorage = new PeerStorage(Integer.parseInt(senderID));
+
+        Peer peer = new Peer(MC, MDB, MDR, senderID, peerStorage);
 
         MC.setChannelSockets(MC, MDB, MDR);
         MDB.setChannelSockets(MC, MDB, MDR);

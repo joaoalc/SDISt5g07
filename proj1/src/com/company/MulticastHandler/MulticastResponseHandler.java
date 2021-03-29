@@ -8,14 +8,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.net.MulticastSocket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Random;
 
 public class MulticastResponseHandler extends Thread{
-    String path = "files/";
+    String path;
     String senderID;
     byte[] request;
 
@@ -33,6 +32,7 @@ public class MulticastResponseHandler extends Thread{
         System.setProperty("file.encoding", "US-ASCII");
 
         System.out.println("The charset used is :" + System.getProperty("file.encoding"));
+        path = MC.peer.peerStorage.getChunksDirectory(Integer.parseInt(senderID));
     }
 
     public void run() {
@@ -49,7 +49,7 @@ public class MulticastResponseHandler extends Thread{
 
                 byte[] body = MessageParser.getBody(request);
                 System.out.println("Body size: " + body.length);
-                ChunkWritter.WriteChunk(body, path + arguments.get(3) + "-" + arguments.get(4));
+                ChunkWritter.WriteChunk(body, path + "/" + arguments.get(3) + "-" + arguments.get(4));
                 Random r = new Random();
                 int sleep_milliseconds =  r.nextInt((400 - 100) + 1) + 100;
                 System.out.println("Sleeping now for " + sleep_milliseconds + " milliseconds");
@@ -87,7 +87,7 @@ public class MulticastResponseHandler extends Thread{
                 int currentChunk = 0;
                 try {
                     while(true) {
-                        System.out.println(path + arguments.get(3) + "-" + currentChunk);
+                        System.out.println(path + "/" + arguments.get(3) + "-" + currentChunk);
                         File file = new File(path + arguments.get(3) + "-" + currentChunk);
                         if(!(file.exists() && !file.isDirectory())){
                             break;

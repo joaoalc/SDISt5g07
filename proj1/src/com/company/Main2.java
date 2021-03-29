@@ -1,5 +1,7 @@
 package com.company;
 
+import com.company.dataStructures.PeerStorage;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -7,15 +9,16 @@ import java.security.NoSuchAlgorithmException;
 
 public class Main2 {
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
-        //MulticastPublisher mpub = new MulticastPublisher();
-        //mpub.multicast("despacito lmao");
+        String senderID = args[0];
 
-        MulticastThread MC = new MulticastThread("230.0.0.0", 4446, "5", "MC");
-        MulticastThread MDB = new MulticastThread("230.0.0.1", 4446, "5", "MDB");
-        MulticastThread MDR = new MulticastThread("230.0.0.2", 4446, "5", "MDR");
+        MulticastThread MC = new MulticastThread("230.0.0.0", 4446, senderID, "MC");
+        MulticastThread MDB = new MulticastThread("230.0.0.1", 4446, senderID, "MDB");
+        MulticastThread MDR = new MulticastThread("230.0.0.2", 4446, senderID, "MDR");
 
 
-        Peer peer = new Peer(MC, MDB, MDR, "5");
+        PeerStorage peerStorage = new PeerStorage(Integer.parseInt(senderID));
+
+        Peer peer = new Peer(MC, MDB, MDR, senderID, peerStorage);
 
         MC.setChannelSockets(MC, MDB, MDR);
         MDB.setChannelSockets(MC, MDB, MDR);
@@ -30,7 +33,8 @@ public class Main2 {
         MDB.start();
         MDR.start();
 
-        peer.backup("files/spooky_month.gif", 2, "1.0");
+        System.out.println(peerStorage.getFilesDirectory(Integer.parseInt(senderID)) + "/spooky_month.gif");
+        peer.backup(peerStorage.getFilesDirectory(Integer.parseInt(senderID)) + "/spooky_month.gif", 2, "1.0");
         /*
         String message = "1.0 " + "PUTCHUNK " + "12312312312312312312312312312312 " + args[0] + " 0 " + "1";
 

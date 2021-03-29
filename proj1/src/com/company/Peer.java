@@ -2,6 +2,7 @@ package com.company;
 
 import com.company.dataStructures.FileInfo;
 import com.company.dataStructures.FileInfos;
+import com.company.dataStructures.PeerStorage;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,18 +27,21 @@ import java.util.Random;
 public class Peer implements IPeerRemote {
 
 
+
     //ArrayList<FileInfo> fileInfos = new ArrayList<FileInfo>();
     FileInfos fileInfos = new FileInfos();
 
     private MulticastThread MC, MDB, MDR;
 
-    public String senderID;
+    public final String senderID;
+    public PeerStorage peerStorage;
 
-    public Peer(MulticastThread MC, MulticastThread MDB, MulticastThread MDR, String senderID) {
+    public Peer(MulticastThread MC, MulticastThread MDB, MulticastThread MDR, String senderID, PeerStorage peerStorage) {
         this.MC = MC;
         this.MDB = MDB;
         this.MDR = MDR;
         this.senderID = senderID;
+        this.peerStorage = peerStorage;
     }
 
     @Override

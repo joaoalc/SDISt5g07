@@ -26,7 +26,7 @@ public class MulticastThread extends Thread{
     String channelType;
 
     String senderID;
-
+    //The peer that owns this channel
     public Peer peer;
 
 
