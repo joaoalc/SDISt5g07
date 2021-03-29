@@ -66,7 +66,7 @@ public class MessageParser {
 
     public static void messageFieldsAreValid(ArrayList<String> messageFields) throws IllegalArgumentException {
 
-        if (messageFields.size() < 5) {
+        if (messageFields.size() < 4) {
             throw new IllegalArgumentException("Number of fields in message should be 5 or more but " + messageFields.size() + "was given");
         }
 
@@ -83,9 +83,11 @@ public class MessageParser {
         }
 
         // Check chunk number
-        String chunkNo = messageFields.get(4);
-        if (!chunkNoPattern.matcher(chunkNo).matches()) {
-            throw new IllegalArgumentException("Invalid file id format: " + chunkNo);
+        if(messageFields.size() >= 5) {
+            String chunkNo = messageFields.get(4);
+            if (!chunkNoPattern.matcher(chunkNo).matches()) {
+                throw new IllegalArgumentException("Invalid file id format: " + chunkNo);
+            }
         }
 
         // Check fileId

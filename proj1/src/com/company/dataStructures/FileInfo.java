@@ -9,30 +9,36 @@ import java.util.ArrayList;
 public class FileInfo {
     public String filePath;
     public String fileID;
+    public String unencryptedFileID;
     //Indexes are chunk numbers; Each string is a userID
     public ArrayList<ArrayList<String>> usersBackingUp;
 
-    public FileInfo(String filePath, String fileID, ArrayList<ArrayList<String>> usersBackingUp){
+    public FileInfo(String filePath, String unencryptedFileID, String fileID, ArrayList<ArrayList<String>> usersBackingUp){
         this.filePath = filePath;
+        this.unencryptedFileID = unencryptedFileID;
         this.fileID = fileID;
         this.usersBackingUp = usersBackingUp;
     }
 
-    public FileInfo(String filePath, String fileID) {
+    public FileInfo(String filePath, String unencryptedFileID, String fileID) {
         this.filePath = filePath;
         this.fileID = fileID;
+        this.unencryptedFileID = unencryptedFileID;
         this.usersBackingUp = new ArrayList<>();
     }
 
-    public FileInfo(String filePath, ArrayList<ArrayList<String>> usersBackingUp) throws NoSuchAlgorithmException {
+    public FileInfo(String filePath, String unencryptedFileID, ArrayList<ArrayList<String>> usersBackingUp) throws NoSuchAlgorithmException {
         this.filePath = filePath;
-        this.fileID = toHexString(getSHA(filePath));
+        this.fileID = toHexString(getSHA(unencryptedFileID));
+        this.unencryptedFileID = unencryptedFileID;
         this.usersBackingUp = usersBackingUp;
     }
 
-    public FileInfo(String filePath) throws NoSuchAlgorithmException {
+    public FileInfo(String filePath, String unencryptedFileID) throws NoSuchAlgorithmException {
         this.filePath = filePath;
-        this.fileID = toHexString(getSHA(filePath));
+        this.unencryptedFileID = unencryptedFileID;
+        this.fileID = toHexString(getSHA(unencryptedFileID));
+        System.out.println();
         this.usersBackingUp = new ArrayList<>();
     }
 
@@ -50,6 +56,7 @@ public class FileInfo {
         return md.digest(input.getBytes(StandardCharsets.UTF_8));
     }
 
+    //In big endian form
     public static String toHexString(byte[] hash)
     {
         // Convert byte array into signum representation

@@ -9,7 +9,10 @@ public class ChunkWritter {
 
     public static void WriteChunk(byte[] bytes, String destination){
         File outputFile = new File(destination);
-
+        if(outputFile.exists() && !outputFile.isDirectory()){
+            System.out.println("Chunk already exists");
+            return;
+        }
         try (FileOutputStream outputStream = new FileOutputStream(outputFile)) {
 
             outputStream.write(bytes);

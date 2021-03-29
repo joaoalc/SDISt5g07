@@ -5,23 +5,23 @@ import com.company.utils.ChunkWritter;
 import com.company.utils.MessageParser;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.MulticastSocket;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Random;
 
 public class MulticastResponseHandler extends Thread{
-    String path = "files/meme";
+    String path = "files/";
     String senderID;
     byte[] request;
 
     MulticastThread MC;
     MulticastThread MDB;
     MulticastThread MDR;
-
-
 
     public MulticastResponseHandler(String senderID, byte[] request, MulticastThread MC, MulticastThread MDB, MulticastThread MDR){
         super();
@@ -34,11 +34,6 @@ public class MulticastResponseHandler extends Thread{
 
         System.out.println("The charset used is :" + System.getProperty("file.encoding"));
     }
-    /*
-    public void AddMessage(byte[] message){
-        System.out.println("Request has been added");
-        requestStrings.add(message);
-    }*/
 
     public void run() {
 
@@ -54,7 +49,7 @@ public class MulticastResponseHandler extends Thread{
 
                 byte[] body = MessageParser.getBody(request);
                 System.out.println("Body size: " + body.length);
-                ChunkWritter.WriteChunk(body, path + arguments.get(4));
+                ChunkWritter.WriteChunk(body, path + arguments.get(3) + "-" + arguments.get(4));
                 Random r = new Random();
                 int sleep_milliseconds =  r.nextInt((400 - 100) + 1) + 100;
                 System.out.println("Sleeping now for " + sleep_milliseconds + " milliseconds");
@@ -76,10 +71,6 @@ public class MulticastResponseHandler extends Thread{
                     baos.write(arr);
                     byte[] b1 = msgNoEndLine.getBytes(StandardCharsets.UTF_8);
                     byte[] b2 = baos.toByteArray();
-                    /*System.out.println(b2);
-                    System.out.println(b2.length);
-                    System.out.println(MC.getGroup());
-                    System.out.println(MC.getInfo().getPort());*/
 
                     randomSleep(100, 400);
 
@@ -91,6 +82,22 @@ public class MulticastResponseHandler extends Thread{
             else if(arguments.get(1).compareTo("STORED") == 0){
                 //Version STORED SenderID FileID ChunkNo
                 MC.peer.addStoredPeer(arguments.get(3), arguments.get(2), Integer.parseInt(arguments.get(4)));
+            }
+            else if(arguments.get(1).compareTo("DELETE") == 0){
+                int currentChunk = 0;
+                try {
+                    while(true) {
+                        System.out.println(path + arguments.get(3) + "-" + currentChunk);
+                        File file = new File(path + arguments.get(3) + "-" + currentChunk);
+                        if(!(file.exists() && !file.isDirectory())){
+                            break;
+                        }
+                        Files.deleteIfExists(file.toPath());
+                        currentChunk++;
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
 
         }
