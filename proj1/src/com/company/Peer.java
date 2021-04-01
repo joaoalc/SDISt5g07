@@ -27,7 +27,6 @@ public class Peer implements IPeerRemote {
 
     @Override
     public void backup(String path, int replication, String version) throws IOException {
-        // TODO: implement this
         File file = new File(path);
         if(!file.exists()){
             throw new FileNotFoundException("File was not found.");
