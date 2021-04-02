@@ -29,7 +29,9 @@ public class Peer implements IPeerRemote {
 
 
     //ArrayList<FileInfo> fileInfos = new ArrayList<FileInfo>();
-    FileInfos fileInfos = new FileInfos();
+
+    // TODO: Fiz a parte de mudar o fileInfos pelo PeerStorage
+    //FileInfos fileInfos = new FileInfos();
 
     private MulticastThread MC, MDB, MDR;
 
@@ -64,7 +66,9 @@ public class Peer implements IPeerRemote {
         String owner = Files.getFileAttributeView(Paths.get(path), FileOwnerAttributeView.class).getOwner().toString();
         String unencryptedFileID = file.getName() + date + owner;
         //Add the file to the list of your files that have been backed up
-        FileInfo currentFileInfo = fileInfos.addFile(new FileInfo(path, unencryptedFileID));
+
+        //FileInfo currentFileInfo = fileInfos.addFile(new FileInfo(path, unencryptedFileID));
+        FileInfo currentFileInfo = peerStorage.infos.addFile(new FileInfo(path, unencryptedFileID));
 
 
 
@@ -83,24 +87,29 @@ public class Peer implements IPeerRemote {
             String headerString = version + " " + "PUTCHUNK" + " " + senderID + " " + fileID + " " + chunkNo + " " + replication;
             byte[] currentMessage = new byte[headerString.length() + 4 + 64000];
 
-            //TODO: Change to arraycopy
-            for (int i = 0; i < headerString.length(); i++) {
+            //TODO: Change to arraycopy DONE!
+            /*for (int i = 0; i < headerString.length(); i++) {
                 currentMessage[i] = (byte) headerString.charAt(i);
-            }
+            }*/
+            System.arraycopy(headerString.getBytes(StandardCharsets.UTF_8), 0, currentMessage, 0, headerString.length());
+
+
+
             currentMessage[headerString.length()] = 0x0D;
             currentMessage[headerString.length() + 1] = 0x0A;
             currentMessage[headerString.length() + 2] = 0x0D;
             currentMessage[headerString.length() + 3] = 0x0A;
 
-            //Fill the rest of the array containing the chunk with the file. Since the size of the array is fixed, we have to save the amout of bytes read to only send that through the multicast port
+            //Fill the rest of the array containing the chunk with the file. Since the size of the array is fixed, we have to save the amount of bytes read to only send that through the multicast port
             numBytes = objReader.read(currentMessage, headerString.length() + 4, 64000);
             if(numBytes == -1){
                 numBytes = 0;
             }
 
-
+            // TODO: Tenho dúvidas na chamada desta função, já não tinha sido chamada em cima?
             FileInfo fileInfo = new FileInfo(path, unencryptedFileID);
-            fileInfos.addFile(fileInfo);
+            //fileInfos.addFile(fileInfo);
+            peerStorage.infos.addFile(fileInfo);
 
             currentFileInfo.usersBackingUp.add(new ArrayList<>());
             chunkBackupProtocol(currentMessage, chunkNo, numBytes + 4 + headerString.length(), replication, path);
@@ -116,8 +125,12 @@ public class Peer implements IPeerRemote {
 
     public void chunkBackupProtocol(byte[] message, int chunkNo, int bytesToSend, int replicationDeg, String filePath) throws IOException {
         for(int i = 0; i <= 4; i++) {
-            System.out.println("Current replication degree: " + fileInfos.findByFilePath(filePath).usersBackingUp.get(chunkNo).size());
+            /*System.out.println("Current replication degree: " + fileInfos.findByFilePath(filePath).usersBackingUp.get(chunkNo).size());
             if(fileInfos.findByFilePath(filePath).usersBackingUp.get(chunkNo).size() >= replicationDeg){
+                break;
+            }*/
+            System.out.println("Current replication degree: " + peerStorage.infos.findByFilePath(filePath).usersBackingUp.get(chunkNo).size());
+            if(peerStorage.infos.findByFilePath(filePath).usersBackingUp.get(chunkNo).size() >= replicationDeg){
                 break;
             }
             MDB.sendMessage(message, bytesToSend);
@@ -150,10 +163,12 @@ public class Peer implements IPeerRemote {
         FileInfo fileInfo = new FileInfo(path, unencryptedFileID);
         String headerString = version + " " + "DELETE" + " " + senderID + " " + fileInfo.fileID;
         byte[] message = new byte[headerString.length() + 4];
-        //TODO: Change to arraycopy
-        for (int i = 0; i < headerString.length(); i++) {
+        //TODO: Change to arraycopy DONE!
+        /*for (int i = 0; i < headerString.length(); i++) {
             message[i] = (byte) headerString.charAt(i);
-        }
+        }*/
+        System.arraycopy(headerString.getBytes(StandardCharsets.UTF_8), 0, message, 0, headerString.length());
+
         message[headerString.length()] = 0x0D;
         message[headerString.length() + 1] = 0x0A;
         message[headerString.length() + 2] = 0x0D;
@@ -172,6 +187,20 @@ public class Peer implements IPeerRemote {
     }
 
     public static void main(String[] args) {
+
+        String headerString = "1.0" + " " + "PUTCHUNK" + " " + "1" + " " + "200" + " " + "3" + " " + "7";
+        byte[] currentMessage = new byte[headerString.length() + 4 + 64000];
+
+        /*for (int i = 0; i < headerString.length(); i++) {
+            currentMessage[i] = (byte) headerString.charAt(i);
+        }*/
+        System.arraycopy(headerString.getBytes(StandardCharsets.UTF_8), 0, currentMessage, 0, headerString.length());
+
+        for (int i = 0; i < headerString.length(); i++) {
+            System.out.println(currentMessage[i]);
+        }
+
+
 /*
         if (args.length != 9) {
             System.out.println("Usage: Peer <protocol_version> <peer_id> <acess_point> <mc_address> <mc_port> <mdb_address> <mdb_port> <mdr_address> <mdr_port>");
@@ -207,11 +236,18 @@ public class Peer implements IPeerRemote {
 
     public void addStoredPeer(String fileID, String userID, int chunkNo) {
 
-        FileInfo a = fileInfos.findByFileID(fileID);
+        /*FileInfo a = fileInfos.findByFileID(fileID);
         if(a == null){
             System.out.println("No file found.");
             return;
         }
-        fileInfos.findByFileID(fileID).addUser(userID, chunkNo);
+        fileInfos.findByFileID(fileID).addUser(userID, chunkNo);*/
+
+        FileInfo a = peerStorage.infos.findByFileID(fileID);
+        if(a == null){
+            System.out.println("No file found.");
+            return;
+        }
+        peerStorage.infos.findByFileID(fileID).addUser(userID, chunkNo);
     }
 }

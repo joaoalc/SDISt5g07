@@ -10,7 +10,7 @@ public class FileInfo {
     public String filePath;
     public String fileID;
     public String unencryptedFileID;
-    //Indexes are chunk numbers; Each string is a userID
+    //Indexes are chunk numbers; Each string is a userID; Each Array is a list of users in the chunk
     public ArrayList<ArrayList<String>> usersBackingUp;
 
     public FileInfo(String filePath, String unencryptedFileID, String fileID, ArrayList<ArrayList<String>> usersBackingUp){
@@ -75,10 +75,13 @@ public class FileInfo {
     }
 
     public void addUser(String userID, int chunk) {
+
+        // Verify if user already exists
         boolean repeat = false;
         for(int i = 0; i < usersBackingUp.get(chunk).size(); i++){
             if((usersBackingUp.get(chunk)).get(i).compareTo(userID) == 0){
                 repeat = true;
+                break;
             }
         }
         if(!repeat) {
