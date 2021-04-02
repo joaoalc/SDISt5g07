@@ -68,7 +68,8 @@ public class Peer implements IPeerRemote {
         //Add the file to the list of your files that have been backed up
 
         //FileInfo currentFileInfo = fileInfos.addFile(new FileInfo(path, unencryptedFileID));
-        FileInfo currentFileInfo = peerStorage.infos.addFile(new FileInfo(path, unencryptedFileID));
+
+        FileInfo currentFileInfo = this.peerStorage.infos.addFile(new FileInfo(path, unencryptedFileID));
 
 
 
@@ -109,7 +110,7 @@ public class Peer implements IPeerRemote {
             // TODO: Tenho dúvidas na chamada desta função, já não tinha sido chamada em cima?
             FileInfo fileInfo = new FileInfo(path, unencryptedFileID);
             //fileInfos.addFile(fileInfo);
-            peerStorage.infos.addFile(fileInfo);
+            this.peerStorage.infos.addFile(fileInfo);
 
             currentFileInfo.usersBackingUp.add(new ArrayList<>());
             chunkBackupProtocol(currentMessage, chunkNo, numBytes + 4 + headerString.length(), replication, path);
@@ -129,8 +130,8 @@ public class Peer implements IPeerRemote {
             if(fileInfos.findByFilePath(filePath).usersBackingUp.get(chunkNo).size() >= replicationDeg){
                 break;
             }*/
-            System.out.println("Current replication degree: " + peerStorage.infos.findByFilePath(filePath).usersBackingUp.get(chunkNo).size());
-            if(peerStorage.infos.findByFilePath(filePath).usersBackingUp.get(chunkNo).size() >= replicationDeg){
+            System.out.println("Current replication degree: " + this.peerStorage.infos.findByFilePath(filePath).usersBackingUp.get(chunkNo).size());
+            if(this.peerStorage.infos.findByFilePath(filePath).usersBackingUp.get(chunkNo).size() >= replicationDeg){
                 break;
             }
             MDB.sendMessage(message, bytesToSend);
@@ -243,11 +244,11 @@ public class Peer implements IPeerRemote {
         }
         fileInfos.findByFileID(fileID).addUser(userID, chunkNo);*/
 
-        FileInfo a = peerStorage.infos.findByFileID(fileID);
+        FileInfo a = this.peerStorage.infos.findByFileID(fileID);
         if(a == null){
             System.out.println("No file found.");
             return;
         }
-        peerStorage.infos.findByFileID(fileID).addUser(userID, chunkNo);
+        this.peerStorage.infos.findByFileID(fileID).addUser(userID, chunkNo);
     }
 }
