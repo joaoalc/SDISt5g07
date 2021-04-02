@@ -19,8 +19,8 @@ public class PeerStorage {
     public final String PEER_CHUNKS_DIR = "files/chunks/peer-";
 
     //Filenames that contain the info of every file/chunk
-    public final String PEER_FILES_INFO_NAME = "fileInfo";
-    public final String PEER_CHUNKS_INFO_NAME = "chunkInfo";
+    public final String PEER_FILES_INFO_NAME = "fileInfo.txt";
+    public final String PEER_CHUNKS_INFO_NAME = "chunkInfo.txt";
 
     public PeerStorage(int peerID){
         //TODO: Change later to add the info from the files file
@@ -78,5 +78,38 @@ public class PeerStorage {
             e.printStackTrace();
         }
     }
+
+    public void WriteChunkToFileData(){
+        File outputFile = new File(PEER_CHUNKS_INFO_NAME);
+        if(outputFile.exists() && !outputFile.isDirectory()){
+            System.out.println("No file data found for this peer, creating new file.");
+
+        }
+        String result = infos.fileInfos.size() + "\n";
+        for(FileInfo fInfo: infos.fileInfos){
+            result += fInfo.fileID + " " + fInfo.usersBackingUp.size() + "\n";
+            for(int i = 0; i < fInfo.usersBackingUp.size(); i++){
+                result += i + "\n";
+            }
+        }
+        try (FileOutputStream outputStream = new FileOutputStream(outputFile)) {
+
+            outputStream.write(result.getBytes(StandardCharsets.US_ASCII));
+
+
+
+        } catch (FileNotFoundException e) {
+            System.out.println("Could not create file in selected directory.");
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /*public static void main(String[] args) {
+        PeerStorage storage = new PeerStorage(35);
+
+        storage.infos.addFile(new FileInfo())
+    }*/
 
 }

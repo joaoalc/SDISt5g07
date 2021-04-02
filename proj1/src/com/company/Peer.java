@@ -111,6 +111,8 @@ public class Peer implements IPeerRemote {
             FileInfo fileInfo = new FileInfo(path, unencryptedFileID);
             //fileInfos.addFile(fileInfo);
             this.peerStorage.infos.addFile(fileInfo);
+            this.peerStorage.WriteInfoToFileData();
+            this.peerStorage.WriteChunkToFileData();
 
             currentFileInfo.usersBackingUp.add(new ArrayList<>());
             chunkBackupProtocol(currentMessage, chunkNo, numBytes + 4 + headerString.length(), replication, path);
