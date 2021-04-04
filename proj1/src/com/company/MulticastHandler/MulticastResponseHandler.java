@@ -85,6 +85,7 @@ public class MulticastResponseHandler extends Thread{
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                MC.peer.peerStorage.chunkInfos.printValuesHumanReadable();
             }
             else if(arguments.get(1).compareTo("STORED") == 0){
                 //Version STORED SenderID FileID ChunkNo

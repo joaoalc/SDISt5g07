@@ -76,7 +76,6 @@ public class MulticastThread extends Thread{
                 byte[] packetData = new byte[packet.getLength()];
                 System.arraycopy(packet.getData(), 0, packetData, 0, packet.getLength());
 
-                //System.out.println("Size: " + packetData.length);
                 ArrayList<String> args = MessageParser.getFirstLineArguments(received);
                 for(int i = 0; i < args.size(); i++){
                     System.out.print(args.get(i) + " ");

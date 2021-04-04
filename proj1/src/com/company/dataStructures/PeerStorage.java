@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Scanner;
 
 public class PeerStorage {
@@ -56,7 +57,15 @@ public class PeerStorage {
     }
 
     public void ReadInfoFromFileData() throws IOException {
-        FileInputStream fileInfoInput = new FileInputStream(PEER_FILES_DIR + peerID + "/" + PEER_FILES_INFO_NAME);
+        File file = new File(PEER_FILES_DIR + peerID + "/" + PEER_FILES_INFO_NAME);
+        FileInputStream fileInfoInput;
+        if(file.exists() && !file.isDirectory()) {
+            // do something
+            fileInfoInput = new FileInputStream(PEER_FILES_DIR + peerID + "/" + PEER_FILES_INFO_NAME);
+        }
+        else{
+            return;
+        }
 
         //Read string from file
         String filedata = "";
@@ -135,7 +144,15 @@ public class PeerStorage {
     }
 
     public void ReadInfoFromChunkData() throws IOException {
-        FileInputStream fileInfoInput = new FileInputStream(PEER_FILES_DIR + peerID + "/" + PEER_FILES_INFO_NAME);
+        File file = new File(PEER_CHUNKS_DIR + peerID + "/" + PEER_CHUNKS_INFO_NAME);
+        FileInputStream fileInfoInput;
+        if(file.exists() && !file.isDirectory()) {
+            // do something
+            fileInfoInput = new FileInputStream(PEER_CHUNKS_DIR + peerID + "/" + PEER_CHUNKS_INFO_NAME);
+        }
+        else{
+            return;
+        }
 
         String filedata = "";
         int character = 0;
@@ -145,6 +162,20 @@ public class PeerStorage {
                 filedata += String.valueOf((char) character);
         }
 
+        chunkInfos = new ChunkFileInfos();
+        Scanner scanner = new Scanner(filedata);
+        int num_files = Integer.parseInt(scanner.nextLine());
+        for(int i = 0; i < num_files; i++){
+            String line = scanner.nextLine();
+            String[] args = line.split(" ");
+            ChunkFileInfo info = new ChunkFileInfo();
+            chunkInfos.chunkInfos.put(args[0], info);
+            for(int j = 0; j < Integer.parseInt(args[1]); j++){
+                info.chunks.add(Integer.parseInt(scanner.nextLine()));
+            }
+
+        }
+        chunkInfos.printValuesHumanReadable();
 
     }
 
@@ -154,19 +185,17 @@ public class PeerStorage {
             System.out.println("No file data found for this peer, creating new file.");
 
         }
-        String result = infos.fileInfos.size() + "\n";
-        for(FileInfo fInfo: infos.fileInfos){
-            result += fInfo.fileID + " " + fInfo.usersBackingUp.size() + "\n";
-            for(int i = 0; i < fInfo.usersBackingUp.size(); i++){
+        String result = chunkInfos.chunkInfos.size() + "\n";
+        int fileNum = 0;
+        for(Map.Entry<String, ChunkFileInfo> set: chunkInfos.chunkInfos.entrySet()){
+            //(File path of when this version of the file was inserted, file could've been manually moved or overwritte, in which case it would not be there)
+            result += set.getKey() + " " + set.getValue().chunks.size() + "\n";
+            for(int i = 0; i < set.getValue().chunks.size(); i++) {
                 result += i + "\n";
             }
         }
         try (FileOutputStream outputStream = new FileOutputStream(outputFile)) {
-
             outputStream.write(result.getBytes(StandardCharsets.US_ASCII));
-
-
-
         } catch (FileNotFoundException e) {
             System.out.println("Could not create file in selected directory.");
             e.printStackTrace();

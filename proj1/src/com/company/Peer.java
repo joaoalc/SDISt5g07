@@ -38,17 +38,19 @@ public class Peer implements IPeerRemote {
     public final String senderID;
     public PeerStorage peerStorage;
 
-    public Peer(MulticastThread MC, MulticastThread MDB, MulticastThread MDR, String senderID, PeerStorage peerStorage) {
+    public Peer(MulticastThread MC, MulticastThread MDB, MulticastThread MDR, String senderID, PeerStorage peerStorage) throws IOException {
         this.MC = MC;
         this.MDB = MDB;
         this.MDR = MDR;
         this.senderID = senderID;
         this.peerStorage = peerStorage;
+        peerStorage.ReadInfoFromChunkData();
+        peerStorage.ReadInfoFromFileData();
     }
 
     @Override
-    public void backup(String path, int replication, String version) throws IOException, NoSuchAlgorithmException {
-        peerStorage.ReadInfoFromFileData();
+    public void backup(String path, int replication, String version) throws IOException{
+
         System.setProperty("file.encoding", "US-ASCII");
         File file = new File(path);
         if(!file.exists()){
@@ -103,7 +105,8 @@ public class Peer implements IPeerRemote {
                 numBytes = 0;
             }
 
-            currentFileInfo.usersBackingUp.add(new ArrayList<>());
+            currentFileInfo.addChunkToArray(chunkNo);
+            //currentFileInfo.usersBackingUp.add(new ArrayList<>());
             chunkBackupProtocol(currentMessage, chunkNo, numBytes + 4 + headerString.length(), replication, path);
 
             try {
