@@ -1,6 +1,8 @@
 package com.company.MulticastHandler;
 
 import com.company.MulticastThread;
+import com.company.Peer;
+import com.company.dataStructures.PeerStorage;
 import com.company.utils.ChunkWritter;
 import com.company.utils.MessageParser;
 
@@ -22,13 +24,16 @@ public class MulticastResponseHandler extends Thread{
     MulticastThread MDB;
     MulticastThread MDR;
 
-    public MulticastResponseHandler(String senderID, byte[] request, MulticastThread MC, MulticastThread MDB, MulticastThread MDR){
+    PeerStorage peerStorage;
+
+    public MulticastResponseHandler(String senderID, byte[] request, MulticastThread MC, MulticastThread MDB, MulticastThread MDR, PeerStorage peerStorage){
         super();
         this.senderID = senderID;
         this.request = request;
         this.MC = MC;
         this.MDB = MDB;
         this.MDR = MDR;
+        this.peerStorage = peerStorage;
         System.setProperty("file.encoding", "US-ASCII");
 
         System.out.println("The charset used is :" + System.getProperty("file.encoding"));
@@ -50,6 +55,8 @@ public class MulticastResponseHandler extends Thread{
                 byte[] body = MessageParser.getBody(request);
                 System.out.println("Body size: " + body.length);
                 ChunkWritter.WriteChunk(body, path + "/" + arguments.get(3) + "-" + arguments.get(4));
+                peerStorage.chunkInfos.AddChunk(arguments.get(3), Integer.parseInt(arguments.get(4)));
+                peerStorage.WriteInfoToChunkData();
                 Random r = new Random();
                 int sleep_milliseconds =  r.nextInt((400 - 100) + 1) + 100;
                 System.out.println("Sleeping now for " + sleep_milliseconds + " milliseconds");
@@ -69,7 +76,7 @@ public class MulticastResponseHandler extends Thread{
                     baos.write(message.getBytes(StandardCharsets.UTF_8));
                     byte[] arr = {0x0D, 0x0A, 0x0D, 0x0A};
                     baos.write(arr);
-                    byte[] b1 = msgNoEndLine.getBytes(StandardCharsets.UTF_8);
+                    //byte[] b1 = msgNoEndLine.getBytes(StandardCharsets.UTF_8);
                     byte[] b2 = baos.toByteArray();
 
                     randomSleep(100, 400);

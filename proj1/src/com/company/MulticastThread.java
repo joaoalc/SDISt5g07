@@ -82,7 +82,7 @@ public class MulticastThread extends Thread{
                     System.out.print(args.get(i) + " ");
                 }
                 System.out.println();
-                MulticastResponseHandler packetHandler = new MulticastResponseHandler(senderID, packetData, MC, MDB, MDR);
+                MulticastResponseHandler packetHandler = new MulticastResponseHandler(senderID, packetData, MC, MDB, MDR, peer.peerStorage);
                 packetHandler.start();
                 /*if ("end".equals(received)) {
                     break;

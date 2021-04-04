@@ -8,10 +8,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 
 public class PeerStorage {
     public FileInfos infos;
+    public ChunkFileInfos chunkInfos;
 
     //Where you read/store files
     public final String PEER_FILES_DIR = "files/files/peer-";
@@ -22,9 +22,13 @@ public class PeerStorage {
     public final String PEER_FILES_INFO_NAME = "fileInfo.txt";
     public final String PEER_CHUNKS_INFO_NAME = "chunkInfo.txt";
 
+    public int peerID;
+
     public PeerStorage(int peerID){
+        this.peerID = peerID;
         //TODO: Change later to add the info from the files file
         infos = new FileInfos();
+        chunkInfos = new ChunkFileInfos();
         try {
             createDirectory(peerID);
         }
@@ -52,8 +56,12 @@ public class PeerStorage {
         return PEER_CHUNKS_DIR + peerID;
     }
 
+    public void ReadInfoFromFileData(){
+
+    }
+
     public void WriteInfoToFileData(){
-        File outputFile = new File(PEER_FILES_INFO_NAME);
+        File outputFile = new File(PEER_FILES_DIR + peerID + "/" + PEER_FILES_INFO_NAME);
         if(outputFile.exists() && !outputFile.isDirectory()){
             System.out.println("No file data found for this peer, creating new file.");
 
@@ -62,7 +70,7 @@ public class PeerStorage {
         for(FileInfo fInfo: infos.fileInfos){
             result += fInfo.unencryptedFileID + " " + fInfo.fileID + " " + fInfo.usersBackingUp.size() + "\n";
             for(int i = 0; i < fInfo.usersBackingUp.size(); i++){
-                result += i + " " + fInfo.usersBackingUp.size() + "\n";
+                result += i + " " + fInfo.usersBackingUp.get(i).size() + "\n";
             }
         }
         try (FileOutputStream outputStream = new FileOutputStream(outputFile)) {
@@ -79,8 +87,12 @@ public class PeerStorage {
         }
     }
 
-    public void WriteChunkToFileData(){
-        File outputFile = new File(PEER_CHUNKS_INFO_NAME);
+    public void ReadInfoFromChunkData(){
+
+    }
+
+    public void WriteInfoToChunkData(){
+        File outputFile = new File(PEER_CHUNKS_DIR + peerID + "/" + PEER_CHUNKS_INFO_NAME);
         if(outputFile.exists() && !outputFile.isDirectory()){
             System.out.println("No file data found for this peer, creating new file.");
 

@@ -108,11 +108,9 @@ public class Peer implements IPeerRemote {
             }
 
             // TODO: Tenho dúvidas na chamada desta função, já não tinha sido chamada em cima?
-            FileInfo fileInfo = new FileInfo(path, unencryptedFileID);
+            //FileInfo fileInfo = new FileInfo(path, unencryptedFileID);
             //fileInfos.addFile(fileInfo);
-            this.peerStorage.infos.addFile(fileInfo);
-            this.peerStorage.WriteInfoToFileData();
-            this.peerStorage.WriteChunkToFileData();
+            //this.peerStorage.infos.addFile(fileInfo);
 
             currentFileInfo.usersBackingUp.add(new ArrayList<>());
             chunkBackupProtocol(currentMessage, chunkNo, numBytes + 4 + headerString.length(), replication, path);
@@ -124,6 +122,9 @@ public class Peer implements IPeerRemote {
             }
             chunkNo++;
         }
+
+        this.peerStorage.WriteInfoToFileData();
+        //this.peerStorage.WriteInfoToChunkData();
     }
 
     public void chunkBackupProtocol(byte[] message, int chunkNo, int bytesToSend, int replicationDeg, String filePath) throws IOException {
