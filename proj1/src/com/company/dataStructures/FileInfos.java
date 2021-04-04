@@ -38,4 +38,40 @@ public class FileInfos {
         return a;
 
     }
+
+    public void printValuesHumanReadable() {
+        String a = "";
+        a += "This peer contains " + fileInfos.size() + " files\n\n";
+        int fileNum = 0;
+        for(FileInfo fInfo: fileInfos){
+            a += "File number " + fileNum + ": \n";
+            //(File path of when this version of the file was inserted, file could've been manually moved or overwritte, in which case it would not be there)
+            a += "File path: " + fInfo.filePath + "\n";
+            a += "File is: " + fInfo.unencryptedFileID + "\n";
+            a += "The file's ID is: " + fInfo.fileID + "\n";
+            a += "The file has a total of " + fInfo.usersBackingUp.size() + " chunks\n\n";
+
+            for(int i = 0; i < fInfo.usersBackingUp.size(); i++){
+                a += "Chunk number " + i + " has " + fInfo.usersBackingUp.get(i).size() + " users backing it up, whose Ids are:\n";
+
+                for(int j = 0; j < fInfo.usersBackingUp.get(i).size(); j++) {
+                    a += " " + fInfo.usersBackingUp.get(i).get(j);
+                }
+                a += "\n";
+            }
+        }
+        System.out.println(a);
+        /*String result = infos.fileInfos.size() + "\n";
+        for(FileInfo fInfo: infos.fileInfos){
+            result += fInfo.unencryptedFileID + "\n" + fInfo.fileID + "\n" + fInfo.usersBackingUp.size() + "\n";
+            for(int i = 0; i < fInfo.usersBackingUp.size(); i++){
+                result += i + " " + fInfo.usersBackingUp.get(i).size();
+                for(int j = 0; j < fInfo.usersBackingUp.get(i).size(); j++){
+                    result += " " + fInfo.usersBackingUp.get(i).get(j);
+                }
+                result += "\n";
+            }
+        }*/
+    }
+
 }

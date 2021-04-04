@@ -48,6 +48,7 @@ public class Peer implements IPeerRemote {
 
     @Override
     public void backup(String path, int replication, String version) throws IOException, NoSuchAlgorithmException {
+        peerStorage.ReadInfoFromFileData();
         System.setProperty("file.encoding", "US-ASCII");
         File file = new File(path);
         if(!file.exists()){
@@ -75,7 +76,6 @@ public class Peer implements IPeerRemote {
 
 
 
-        //TODO: Repeat one more time if size is multiple of 64000
         FileInputStream objReader = new FileInputStream(file);
 
 
@@ -88,10 +88,6 @@ public class Peer implements IPeerRemote {
             String headerString = version + " " + "PUTCHUNK" + " " + senderID + " " + fileID + " " + chunkNo + " " + replication;
             byte[] currentMessage = new byte[headerString.length() + 4 + 64000];
 
-            //TODO: Change to arraycopy DONE!
-            /*for (int i = 0; i < headerString.length(); i++) {
-                currentMessage[i] = (byte) headerString.charAt(i);
-            }*/
             System.arraycopy(headerString.getBytes(StandardCharsets.UTF_8), 0, currentMessage, 0, headerString.length());
 
 
@@ -107,11 +103,6 @@ public class Peer implements IPeerRemote {
                 numBytes = 0;
             }
 
-            // TODO: Tenho dúvidas na chamada desta função, já não tinha sido chamada em cima?
-            //FileInfo fileInfo = new FileInfo(path, unencryptedFileID);
-            //fileInfos.addFile(fileInfo);
-            //this.peerStorage.infos.addFile(fileInfo);
-
             currentFileInfo.usersBackingUp.add(new ArrayList<>());
             chunkBackupProtocol(currentMessage, chunkNo, numBytes + 4 + headerString.length(), replication, path);
 
@@ -124,6 +115,7 @@ public class Peer implements IPeerRemote {
         }
 
         this.peerStorage.WriteInfoToFileData();
+        this.peerStorage.infos.printValuesHumanReadable();
         //this.peerStorage.WriteInfoToChunkData();
     }
 
@@ -167,10 +159,6 @@ public class Peer implements IPeerRemote {
         FileInfo fileInfo = new FileInfo(path, unencryptedFileID);
         String headerString = version + " " + "DELETE" + " " + senderID + " " + fileInfo.fileID;
         byte[] message = new byte[headerString.length() + 4];
-        //TODO: Change to arraycopy DONE!
-        /*for (int i = 0; i < headerString.length(); i++) {
-            message[i] = (byte) headerString.charAt(i);
-        }*/
         System.arraycopy(headerString.getBytes(StandardCharsets.UTF_8), 0, message, 0, headerString.length());
 
         message[headerString.length()] = 0x0D;

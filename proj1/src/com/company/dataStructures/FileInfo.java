@@ -19,7 +19,7 @@ public class FileInfo {
         this.fileID = fileID;
         this.usersBackingUp = usersBackingUp;
     }
-
+/*
     public FileInfo(String filePath, String unencryptedFileID, String fileID) {
         this.filePath = filePath;
         this.fileID = fileID;
@@ -32,14 +32,19 @@ public class FileInfo {
         this.fileID = toHexString(getSHA(unencryptedFileID));
         this.unencryptedFileID = unencryptedFileID;
         this.usersBackingUp = usersBackingUp;
-    }
+    }*/
 
-    public FileInfo(String filePath, String unencryptedFileID) throws NoSuchAlgorithmException {
-        this.filePath = filePath;
-        this.unencryptedFileID = unencryptedFileID;
-        this.fileID = toHexString(getSHA(unencryptedFileID));
-        System.out.println();
-        this.usersBackingUp = new ArrayList<>();
+    public FileInfo(String filePath, String unencryptedFileID) {
+        try {
+            this.filePath = filePath;
+            this.unencryptedFileID = unencryptedFileID;
+            this.fileID = toHexString(getSHA(unencryptedFileID));
+            System.out.println();
+            this.usersBackingUp = new ArrayList<>();
+        }
+        catch(NoSuchAlgorithmException e){
+            System.out.println("SHA256 no longer exists, appearantly.");
+        }
     }
 
 

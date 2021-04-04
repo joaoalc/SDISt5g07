@@ -57,14 +57,14 @@ public class MulticastResponseHandler extends Thread{
                 ChunkWritter.WriteChunk(body, path + "/" + arguments.get(3) + "-" + arguments.get(4));
                 peerStorage.chunkInfos.AddChunk(arguments.get(3), Integer.parseInt(arguments.get(4)));
                 peerStorage.WriteInfoToChunkData();
-                Random r = new Random();
+                /*Random r = new Random();
                 int sleep_milliseconds =  r.nextInt((400 - 100) + 1) + 100;
                 System.out.println("Sleeping now for " + sleep_milliseconds + " milliseconds");
                 try {
                     Thread.sleep(sleep_milliseconds);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                }
+                }*/
                 System.out.println("Sending now!");
                 try {
                     String msgNoEndLine = arguments.get(0) + " STORED " + senderID + " " + arguments.get(3) + " " + arguments.get(4);

@@ -1,13 +1,12 @@
 package com.company.dataStructures;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Scanner;
 
 public class PeerStorage {
     public FileInfos infos;
@@ -56,7 +55,50 @@ public class PeerStorage {
         return PEER_CHUNKS_DIR + peerID;
     }
 
-    public void ReadInfoFromFileData(){
+    public void ReadInfoFromFileData() throws IOException {
+        FileInputStream fileInfoInput = new FileInputStream(PEER_FILES_DIR + peerID + "/" + PEER_FILES_INFO_NAME);
+
+        //Read string from file
+        String filedata = "";
+        int character = 0;
+        while(character != -1){
+            character = fileInfoInput.read();
+            if(character != -1)
+                filedata += String.valueOf((char) character);
+        }
+
+
+        infos = new FileInfos();
+        Scanner scanner = new Scanner(filedata);
+        int num_files = Integer.parseInt(scanner.nextLine());
+
+        //Read and insert info from file string
+        for(int i = 0; i < num_files; i++){
+            FileInfo info = new FileInfo(scanner.nextLine(), scanner.nextLine());
+            String fileID = scanner.nextLine();
+            if(info.fileID.compareTo(fileID) != 0){
+                System.out.println("File ID from file is incorrect, this is likely an error, so the id from the file will be ignored.");
+            }
+            int numChunks = Integer.parseInt(scanner.nextLine());
+            for (int chunk = 0; chunk < numChunks; chunk++){
+                info.usersBackingUp.add(new ArrayList<>());
+                String chunkStr = scanner.nextLine();
+                String[] arr = chunkStr.split(" ");
+                if(Integer.parseInt(arr[0]) != chunk){
+                    System.out.println("Chunk number " + chunk + " of file " + info.unencryptedFileID + " is wrong, ignoring it.");
+                }
+                for(int userID = 0; userID < Integer.parseInt(arr[1]); userID++){
+                    info.usersBackingUp.get(chunk).add(arr[userID + 2]);
+                }
+
+            }
+
+            infos.fileInfos.add(info);
+
+            infos.printValuesHumanReadable();
+            //FileInfo info = new FileInfo();
+        }
+
 
     }
 
@@ -66,11 +108,16 @@ public class PeerStorage {
             System.out.println("No file data found for this peer, creating new file.");
 
         }
+        //TODO: Convert to toString method override in PeerStorage
         String result = infos.fileInfos.size() + "\n";
         for(FileInfo fInfo: infos.fileInfos){
-            result += fInfo.unencryptedFileID + " " + fInfo.fileID + " " + fInfo.usersBackingUp.size() + "\n";
+            result += fInfo.filePath + "\n" + fInfo.unencryptedFileID + "\n" + fInfo.fileID + "\n" + fInfo.usersBackingUp.size() + "\n";
             for(int i = 0; i < fInfo.usersBackingUp.size(); i++){
-                result += i + " " + fInfo.usersBackingUp.get(i).size() + "\n";
+                result += i + " " + fInfo.usersBackingUp.get(i).size();
+                for(int j = 0; j < fInfo.usersBackingUp.get(i).size(); j++){
+                    result += " " + fInfo.usersBackingUp.get(i).get(j);
+                }
+                result += "\n";
             }
         }
         try (FileOutputStream outputStream = new FileOutputStream(outputFile)) {
@@ -87,7 +134,17 @@ public class PeerStorage {
         }
     }
 
-    public void ReadInfoFromChunkData(){
+    public void ReadInfoFromChunkData() throws IOException {
+        FileInputStream fileInfoInput = new FileInputStream(PEER_FILES_DIR + peerID + "/" + PEER_FILES_INFO_NAME);
+
+        String filedata = "";
+        int character = 0;
+        while(character != -1){
+            character = fileInfoInput.read();
+            if(character != -1)
+                filedata += String.valueOf((char) character);
+        }
+
 
     }
 
