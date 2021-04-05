@@ -55,7 +55,7 @@ public class MulticastResponseHandler extends Thread{
                 byte[] body = MessageParser.getBody(request);
                 System.out.println("Body size: " + body.length);
                 ChunkWritter.WriteChunk(body, path + "/" + arguments.get(3) + "-" + arguments.get(4));
-                peerStorage.chunkInfos.AddChunk(arguments.get(3), Integer.parseInt(arguments.get(4)));
+                peerStorage.chunkInfos.addChunk(arguments.get(3), Integer.parseInt(arguments.get(4)));
                 peerStorage.WriteInfoToChunkData();
                 /*Random r = new Random();
                 int sleep_milliseconds =  r.nextInt((400 - 100) + 1) + 100;
@@ -100,6 +100,10 @@ public class MulticastResponseHandler extends Thread{
                             break;
                         }
                         Files.deleteIfExists(file.toPath());
+                        if (!peerStorage.chunkInfos.removeChunk(arguments.get(3), Integer.parseInt(arguments.get(4)))) {
+                            System.out.println("Failed to remove chunk");
+                        }
+                        peerStorage.WriteInfoToChunkData();
                         currentChunk++;
                     }
                 } catch (IOException e) {

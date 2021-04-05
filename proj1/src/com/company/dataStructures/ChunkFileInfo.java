@@ -9,18 +9,27 @@ public class ChunkFileInfo {
     public ChunkFileInfo(){
     }
 
-    public boolean ChunkExists(int chunkNo){
+    public boolean chunkExists(int chunkNo){
         for(Integer i: chunks){
             if (i == chunkNo)
                 return true;
         }
         return false;
     }
-    public void AddChunk(int chunkNo){
+    public void addChunk(int chunkNo){
         for(Integer i: chunks){
             if (i == chunkNo)
                 return;
         }
         chunks.add(chunkNo);
+    }
+
+    public boolean removeChunk(int chunkNo) {
+        if (!this.chunkExists(chunkNo)) {
+            return false;
+        }
+
+        this.chunks.remove(chunkNo);
+        return true;
     }
 }
