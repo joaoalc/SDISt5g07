@@ -108,6 +108,7 @@ public class Peer implements IPeerRemote {
             currentFileInfo.addChunkToArray(chunkNo);
             //currentFileInfo.usersBackingUp.add(new ArrayList<>());
             chunkBackupProtocol(currentMessage, chunkNo, numBytes + 4 + headerString.length(), replication, path);
+            this.peerStorage.WriteInfoToFileData();
 
             try {
                 Thread.sleep(1000);
@@ -117,7 +118,6 @@ public class Peer implements IPeerRemote {
             chunkNo++;
         }
 
-        this.peerStorage.WriteInfoToFileData();
         this.peerStorage.infos.printValuesHumanReadable();
         //this.peerStorage.WriteInfoToChunkData();
     }
@@ -177,6 +177,11 @@ public class Peer implements IPeerRemote {
         message[headerString.length() + 3] = 0x0A;
 
         MDB.sendMessage(message, message.length);
+
+
+        peerStorage.infos.fileInfos.remove(peerStorage.infos.findByFilePath(path));
+        peerStorage.infos.printValuesHumanReadable();
+        peerStorage.WriteInfoToFileData();
 
 
 

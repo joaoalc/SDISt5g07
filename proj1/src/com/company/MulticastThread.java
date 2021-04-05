@@ -83,14 +83,7 @@ public class MulticastThread extends Thread{
                 System.out.println();
                 MulticastResponseHandler packetHandler = new MulticastResponseHandler(senderID, packetData, MC, MDB, MDR, peer.peerStorage);
                 packetHandler.start();
-                /*if ("end".equals(received)) {
-                    break;
-                }*/
-
-
             }
-            /*socket.leaveGroup(group);
-            socket.close();*/
 
         } catch (UnknownHostException e) {
             System.out.println("Could not find host.");

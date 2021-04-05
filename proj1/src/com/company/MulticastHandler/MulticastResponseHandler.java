@@ -58,14 +58,6 @@ public class MulticastResponseHandler extends Thread{
                 ChunkWritter.WriteChunk(body, path + "/" + arguments.get(3) + "-" + arguments.get(4));
                 peerStorage.chunkInfos.AddChunk(arguments.get(3), Integer.parseInt(arguments.get(4)));
                 peerStorage.WriteInfoToChunkData();
-                /*Random r = new Random();
-                int sleep_milliseconds =  r.nextInt((400 - 100) + 1) + 100;
-                System.out.println("Sleeping now for " + sleep_milliseconds + " milliseconds");
-                try {
-                    Thread.sleep(sleep_milliseconds);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }*/
                 System.out.println("Sending now!");
                 try {
                     String msgNoEndLine = arguments.get(0) + " STORED " + senderID + " " + arguments.get(3) + " " + arguments.get(4);
@@ -86,34 +78,17 @@ public class MulticastResponseHandler extends Thread{
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                MC.peer.peerStorage.chunkInfos.printValuesHumanReadable();
             }
             else if(arguments.get(1).compareTo("STORED") == 0){
                 //Version STORED SenderID FileID ChunkNo
                 MC.peer.addStoredPeer(arguments.get(3), arguments.get(2), Integer.parseInt(arguments.get(4)));
             }
             else if(arguments.get(1).compareTo("DELETE") == 0){
-                int currentChunk = 0;
-                /*try {
-                    while(true) {
-                        System.out.println(path + "/" + arguments.get(3) + "-" + currentChunk);
-                        File file = new File(path + arguments.get(3) + "-" + currentChunk);
-                        if(!(file.exists() && !file.isDirectory())){
-                            break;
-                        }
-                        Files.deleteIfExists(file.toPath());
-                        currentChunk++;
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }*/
                 try {
                     ChunkFileInfo info = peerStorage.chunkInfos.chunkInfos.get(arguments.get(3));
                     if(info != null) {
                         for (Integer currentChunkNo : info.chunks) {
                             File file = new File(path + "/" + arguments.get(3) + "-" + currentChunkNo);
-                            //System.out.println(file.exists());
-                            //System.out.println(path + "/" + arguments.get(3) + "-" + currentChunkNo);
                             Files.deleteIfExists(file.toPath());
                         }
                     }
