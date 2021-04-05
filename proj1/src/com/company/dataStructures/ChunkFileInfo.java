@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class ChunkFileInfo {
 
-    ArrayList<Integer> chunks = new ArrayList<>();
+    public ArrayList<Integer> chunks = new ArrayList<>();
 
     public ChunkFileInfo(){
     }

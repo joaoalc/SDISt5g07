@@ -38,17 +38,19 @@ public class Peer implements IPeerRemote {
     public final String senderID;
     public PeerStorage peerStorage;
 
-    public Peer(MulticastThread MC, MulticastThread MDB, MulticastThread MDR, String senderID, PeerStorage peerStorage) {
+    public Peer(MulticastThread MC, MulticastThread MDB, MulticastThread MDR, String senderID, PeerStorage peerStorage) throws IOException {
         this.MC = MC;
         this.MDB = MDB;
         this.MDR = MDR;
         this.senderID = senderID;
         this.peerStorage = peerStorage;
+        peerStorage.ReadInfoFromChunkData();
+        peerStorage.ReadInfoFromFileData();
     }
 
     @Override
-    public void backup(String path, int replication, String version) throws IOException, NoSuchAlgorithmException {
-        peerStorage.ReadInfoFromFileData();
+    public void backup(String path, int replication, String version) throws IOException{
+
         System.setProperty("file.encoding", "US-ASCII");
         File file = new File(path);
         if(!file.exists()){
@@ -103,8 +105,10 @@ public class Peer implements IPeerRemote {
                 numBytes = 0;
             }
 
-            currentFileInfo.usersBackingUp.add(new ArrayList<>());
+            currentFileInfo.addChunkToArray(chunkNo);
+            //currentFileInfo.usersBackingUp.add(new ArrayList<>());
             chunkBackupProtocol(currentMessage, chunkNo, numBytes + 4 + headerString.length(), replication, path);
+            this.peerStorage.WriteInfoToFileData();
 
             try {
                 Thread.sleep(1000);
@@ -114,7 +118,6 @@ public class Peer implements IPeerRemote {
             chunkNo++;
         }
 
-        this.peerStorage.WriteInfoToFileData();
         this.peerStorage.infos.printValuesHumanReadable();
         //this.peerStorage.WriteInfoToChunkData();
     }
@@ -149,7 +152,14 @@ public class Peer implements IPeerRemote {
     @Override
     public void delete(String path, String version) throws IOException, NoSuchAlgorithmException {
         // TODO: implement this
+        System.setProperty("file.encoding", "US-ASCII");
         File file = new File(path);
+        if(!file.exists()){
+            throw new FileNotFoundException("File was not found.");
+        }
+        if(!file.canRead()){
+            throw new FileNotFoundException("File exists but could not be read.");
+        }
 
         String date = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(file.lastModified());
 
@@ -167,6 +177,11 @@ public class Peer implements IPeerRemote {
         message[headerString.length() + 3] = 0x0A;
 
         MDB.sendMessage(message, message.length);
+
+
+        peerStorage.infos.fileInfos.remove(peerStorage.infos.findByFilePath(path));
+        peerStorage.infos.printValuesHumanReadable();
+        peerStorage.WriteInfoToFileData();
 
 
 

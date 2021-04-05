@@ -93,4 +93,13 @@ public class FileInfo {
             usersBackingUp.get(chunk).add(userID);
         }
     }
+
+    public void addChunkToArray(int chunkNo) {
+        if(usersBackingUp.size() > chunkNo){
+            return;
+        }
+        else{
+            usersBackingUp.add(new ArrayList<>());
+        }
+    }
 }

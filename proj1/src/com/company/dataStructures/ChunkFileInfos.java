@@ -1,6 +1,7 @@
 package com.company.dataStructures;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class ChunkFileInfos {
 
@@ -32,5 +33,32 @@ public class ChunkFileInfos {
             System.out.println("Failed to remove chunk");
         }
         return true;
+    }
+
+    public void printValuesHumanReadable() {
+        String a = "";
+        a += "This peer contains " + chunkInfos.size() + " files\n\n";
+        int fileNum = 0;
+        for(Map.Entry<String, ChunkFileInfo> set: chunkInfos.entrySet()){
+            a += "File number " + fileNum + ": \n";
+            //(File path of when this version of the file was inserted, file could've been manually moved or overwritte, in which case it would not be there)
+            a += "The file's ID is: " + set.getKey() + "\n";
+
+            for(int i = 0; i < set.getValue().chunks.size(); i++){
+                a += "Chunk number " + i + " is being backed up\n";
+            }
+        }
+        System.out.println(a);
+        /*String result = infos.fileInfos.size() + "\n";
+        for(FileInfo fInfo: infos.fileInfos){
+            result += fInfo.unencryptedFileID + "\n" + fInfo.fileID + "\n" + fInfo.usersBackingUp.size() + "\n";
+            for(int i = 0; i < fInfo.usersBackingUp.size(); i++){
+                result += i + " " + fInfo.usersBackingUp.get(i).size();
+                for(int j = 0; j < fInfo.usersBackingUp.get(i).size(); j++){
+                    result += " " + fInfo.usersBackingUp.get(i).get(j);
+                }
+                result += "\n";
+            }
+        }*/
     }
 }
