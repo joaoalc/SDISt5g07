@@ -10,9 +10,9 @@ public class MainDelete {
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
         String senderID = args[0];
 
-        MulticastThread MC = new MulticastThread("230.0.0.0", 4446, "5", "MC");
-        MulticastThread MDB = new MulticastThread("230.0.0.1", 4446, "5", "MDB");
-        MulticastThread MDR = new MulticastThread("230.0.0.2", 4446, "5", "MDR");
+        MulticastThread MC = new MulticastThread("230.0.0.0", 4446, senderID, "MC");
+        MulticastThread MDB = new MulticastThread("230.0.0.1", 4446, senderID, "MDB");
+        MulticastThread MDR = new MulticastThread("230.0.0.2", 4446, senderID, "MDR");
 
         PeerStorage peerStorage = new PeerStorage(Integer.parseInt(senderID));
 
@@ -31,7 +31,7 @@ public class MainDelete {
         MDB.start();
         MDR.start();
 
-        peer.delete("files/spooky_month.gif", "1.0");
+        peer.delete(peerStorage.getFilesDirectory(Integer.parseInt(senderID)) + "/spooky_month.gif", "1.0");
 
     }
 }

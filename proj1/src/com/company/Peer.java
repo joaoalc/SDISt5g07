@@ -152,7 +152,14 @@ public class Peer implements IPeerRemote {
     @Override
     public void delete(String path, String version) throws IOException, NoSuchAlgorithmException {
         // TODO: implement this
+        System.setProperty("file.encoding", "US-ASCII");
         File file = new File(path);
+        if(!file.exists()){
+            throw new FileNotFoundException("File was not found.");
+        }
+        if(!file.canRead()){
+            throw new FileNotFoundException("File exists but could not be read.");
+        }
 
         String date = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(file.lastModified());
 

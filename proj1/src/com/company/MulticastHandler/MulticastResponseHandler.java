@@ -2,6 +2,7 @@ package com.company.MulticastHandler;
 
 import com.company.MulticastThread;
 import com.company.Peer;
+import com.company.dataStructures.ChunkFileInfo;
 import com.company.dataStructures.PeerStorage;
 import com.company.utils.ChunkWritter;
 import com.company.utils.MessageParser;
@@ -93,7 +94,7 @@ public class MulticastResponseHandler extends Thread{
             }
             else if(arguments.get(1).compareTo("DELETE") == 0){
                 int currentChunk = 0;
-                try {
+                /*try {
                     while(true) {
                         System.out.println(path + "/" + arguments.get(3) + "-" + currentChunk);
                         File file = new File(path + arguments.get(3) + "-" + currentChunk);
@@ -105,7 +106,22 @@ public class MulticastResponseHandler extends Thread{
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
+                }*/
+                try {
+                    ChunkFileInfo info = peerStorage.chunkInfos.chunkInfos.get(arguments.get(3));
+                    if(info != null) {
+                        for (Integer currentChunkNo : info.chunks) {
+                            File file = new File(path + "/" + arguments.get(3) + "-" + currentChunkNo);
+                            //System.out.println(file.exists());
+                            //System.out.println(path + "/" + arguments.get(3) + "-" + currentChunkNo);
+                            Files.deleteIfExists(file.toPath());
+                        }
+                    }
+                    peerStorage.chunkInfos.chunkInfos.remove(arguments.get(3));
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
+                peerStorage.WriteInfoToChunkData();
             }
 
         }
