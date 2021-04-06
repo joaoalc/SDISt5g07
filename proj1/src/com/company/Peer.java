@@ -26,7 +26,7 @@ import java.util.Random;
 
 public class Peer implements IPeerRemote {
 
-
+    public TempFileChunks restoreFileChunks;
 
     //ArrayList<FileInfo> fileInfos = new ArrayList<FileInfo>();
 
@@ -145,8 +145,40 @@ public class Peer implements IPeerRemote {
     }
 
     @Override
-    public void restore(String path) throws RemoteException {
+    public void restore(String path, String version) throws IOException {
         // TODO: implement this
+
+        FileInfo fileInfo = peerStorage.infos.findByFilePath(path);
+        String fileID = fileInfo.fileID;
+
+        //TODO: Replace numChunks with the number of chunks in the file
+        restoreFileChunks = new TempFileChunks(18, fileID, new File(path));
+
+        for(int chunkNo = 0; chunkNo < fileInfo.usersBackingUp.size(); chunkNo++) {
+            String headerString = "1.0" + " " + "GETCHUNK" + " " + senderID + " " + fileID + " " + String.valueOf(chunkNo);
+
+            byte[] message = new byte[headerString.length() + 4];
+            System.arraycopy(headerString.getBytes(StandardCharsets.US_ASCII), 0, message, 0, headerString.length());
+
+            message[headerString.length()] = 0x0D;
+            message[headerString.length() + 1] = 0x0A;
+            message[headerString.length() + 2] = 0x0D;
+            message[headerString.length() + 3] = 0x0A;
+            System.out.println(headerString);
+            MC.sendMessage(message, message.length);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     @Override

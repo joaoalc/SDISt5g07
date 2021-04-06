@@ -49,16 +49,5 @@ public class ChunkFileInfos {
             }
         }
         System.out.println(a);
-        /*String result = infos.fileInfos.size() + "\n";
-        for(FileInfo fInfo: infos.fileInfos){
-            result += fInfo.unencryptedFileID + "\n" + fInfo.fileID + "\n" + fInfo.usersBackingUp.size() + "\n";
-            for(int i = 0; i < fInfo.usersBackingUp.size(); i++){
-                result += i + " " + fInfo.usersBackingUp.get(i).size();
-                for(int j = 0; j < fInfo.usersBackingUp.get(i).size(); j++){
-                    result += " " + fInfo.usersBackingUp.get(i).get(j);
-                }
-                result += "\n";
-            }
-        }*/
     }
 }
