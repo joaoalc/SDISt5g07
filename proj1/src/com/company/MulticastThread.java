@@ -10,6 +10,7 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class MulticastThread extends Thread{
     protected MulticastSocket socket = null;
@@ -29,7 +30,7 @@ public class MulticastThread extends Thread{
     //The peer that owns this channel
     public Peer peer;
 
-
+    public HashMap<String, Peer> restorePeers = new HashMap<>();
 
     public MulticastThread(String IP, int port, String senderID, String channelType) throws IOException {
         name = new ChannelInfo();
@@ -41,6 +42,8 @@ public class MulticastThread extends Thread{
         this.senderID = senderID;
         this.channelType = channelType;
         System.setProperty("file.encoding", "US-ASCII");
+
+
     }
 
     public MulticastSocket getSocket() {
@@ -81,7 +84,7 @@ public class MulticastThread extends Thread{
                     System.out.print(args.get(i) + " ");
                 }
                 System.out.println();
-                MulticastResponseHandler packetHandler = new MulticastResponseHandler(senderID, packetData, MC, MDB, MDR, peer.peerStorage);
+                MulticastResponseHandler packetHandler = new MulticastResponseHandler(senderID, packetData, MC, MDB, MDR, peer.peerStorage, channelType);
                 packetHandler.start();
             }
 

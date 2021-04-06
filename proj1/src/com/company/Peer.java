@@ -26,7 +26,7 @@ import java.util.Random;
 
 public class Peer implements IPeerRemote {
 
-
+    public TempFileChunks restoreFileChunks;
 
     //ArrayList<FileInfo> fileInfos = new ArrayList<FileInfo>();
 
@@ -59,7 +59,6 @@ public class Peer implements IPeerRemote {
         if(!file.canRead()){
             throw new FileNotFoundException("File exists but could not be read.");
         }
-        System.out.println(file.length());
         if(file.length() > (long) 64000 * 1000 * 1000){
             throw new FileNotFoundException("File is too large to be read (Max size: 64 billion bytes).");
         }
@@ -72,7 +71,8 @@ public class Peer implements IPeerRemote {
 
         //FileInfo currentFileInfo = fileInfos.addFile(new FileInfo(path, unencryptedFileID));
 
-        FileInfo currentFileInfo = this.peerStorage.infos.addFile(new FileInfo(path, unencryptedFileID));
+        int numberOfChunks = (int) (file.length() / 64000) + 1;
+        FileInfo currentFileInfo = this.peerStorage.infos.addFile(new FileInfo(path, unencryptedFileID, numberOfChunks));
 
 
 
@@ -108,7 +108,7 @@ public class Peer implements IPeerRemote {
             currentFileInfo.addChunkToArray(chunkNo);
             //currentFileInfo.usersBackingUp.add(new ArrayList<>());
             chunkBackupProtocol(currentMessage, chunkNo, numBytes + 4 + headerString.length(), replication, path);
-            this.peerStorage.WriteInfoToFileData();
+
 
             try {
                 Thread.sleep(1000);
@@ -118,6 +118,7 @@ public class Peer implements IPeerRemote {
             chunkNo++;
         }
 
+        this.peerStorage.WriteInfoToFileData();
         this.peerStorage.infos.printValuesHumanReadable();
         //this.peerStorage.WriteInfoToChunkData();
     }
@@ -145,8 +146,39 @@ public class Peer implements IPeerRemote {
     }
 
     @Override
-    public void restore(String path) throws RemoteException {
+    public void restore(String path, String version) throws IOException {
         // TODO: implement this
+
+        FileInfo fileInfo = peerStorage.infos.findByFilePath(path);
+        String fileID = fileInfo.fileID;
+
+        //TODO: Replace numChunks with the number of chunks in the file
+        restoreFileChunks = new TempFileChunks(18, fileID, new File(path));
+
+        for(int chunkNo = 0; chunkNo < fileInfo.usersBackingUp.size(); chunkNo++) {
+            String headerString = "1.0" + " " + "GETCHUNK" + " " + senderID + " " + fileID + " " + String.valueOf(chunkNo);
+
+            byte[] message = new byte[headerString.length() + 4];
+            System.arraycopy(headerString.getBytes(StandardCharsets.US_ASCII), 0, message, 0, headerString.length());
+
+            message[headerString.length()] = 0x0D;
+            message[headerString.length() + 1] = 0x0A;
+            message[headerString.length() + 2] = 0x0D;
+            message[headerString.length() + 3] = 0x0A;
+            MC.sendMessage(message, message.length);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     @Override
@@ -160,13 +192,17 @@ public class Peer implements IPeerRemote {
         if(!file.canRead()){
             throw new FileNotFoundException("File exists but could not be read.");
         }
+        if(file.length() > (long) 64000 * 1000 * 1000){
+            throw new FileNotFoundException("File is too large to be read (Max size: 64 billion bytes).");
+        }
 
         String date = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(file.lastModified());
 
         String owner = Files.getFileAttributeView(Paths.get(path), FileOwnerAttributeView.class).getOwner().toString();
         String unencryptedFileID = file.getName() + date + owner;
 
-        FileInfo fileInfo = new FileInfo(path, unencryptedFileID);
+        int numberOfChunks = (int) (file.length() / 64000) + 1;
+        FileInfo fileInfo = new FileInfo(path, unencryptedFileID, numberOfChunks);
         String headerString = version + " " + "DELETE" + " " + senderID + " " + fileInfo.fileID;
         byte[] message = new byte[headerString.length() + 4];
         System.arraycopy(headerString.getBytes(StandardCharsets.UTF_8), 0, message, 0, headerString.length());

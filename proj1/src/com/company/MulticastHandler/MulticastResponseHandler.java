@@ -1,11 +1,13 @@
 package com.company.MulticastHandler;
 
+import com.company.Message;
 import com.company.MulticastThread;
 import com.company.Peer;
 import com.company.dataStructures.Chunk;
 import com.company.dataStructures.ChunkFileInfo;
 import com.company.dataStructures.PeerStorage;
 import com.company.utils.ChunkWritter;
+import com.company.utils.MessageCreator;
 import com.company.utils.MessageParser;
 
 import java.io.ByteArrayOutputStream;
@@ -28,7 +30,9 @@ public class MulticastResponseHandler extends Thread{
 
     PeerStorage peerStorage;
 
-    public MulticastResponseHandler(String senderID, byte[] request, MulticastThread MC, MulticastThread MDB, MulticastThread MDR, PeerStorage peerStorage){
+    String callerChannelType;
+
+    public MulticastResponseHandler(String senderID, byte[] request, MulticastThread MC, MulticastThread MDB, MulticastThread MDR, PeerStorage peerStorage, String callerChannelType){
         super();
         this.senderID = senderID;
         this.request = request;
@@ -36,6 +40,7 @@ public class MulticastResponseHandler extends Thread{
         this.MDB = MDB;
         this.MDR = MDR;
         this.peerStorage = peerStorage;
+        this.callerChannelType = callerChannelType;
         System.setProperty("file.encoding", "US-ASCII");
 
         System.out.println("The charset used is :" + System.getProperty("file.encoding"));
@@ -51,7 +56,7 @@ public class MulticastResponseHandler extends Thread{
 
         //Is this my own message?
         if(arguments.get(2).compareTo(senderID) != 0) {
-            if (arguments.get(1).compareTo("PUTCHUNK") == 0) {
+            if (arguments.get(1).compareTo("PUTCHUNK") == 0 && this.callerChannelType == "MDB") {
                 System.out.println("Putchunk request.");
 
                 byte[] body = MessageParser.getBody(request);
@@ -80,11 +85,11 @@ public class MulticastResponseHandler extends Thread{
                     e.printStackTrace();
                 }
             }
-            else if(arguments.get(1).compareTo("STORED") == 0){
+            else if(arguments.get(1).compareTo("STORED") == 0 && this.callerChannelType == "MC"){
                 //Version STORED SenderID FileID ChunkNo
                 MC.peer.addStoredPeer(arguments.get(3), arguments.get(2), Integer.parseInt(arguments.get(4)));
             }
-            else if(arguments.get(1).compareTo("DELETE") == 0){
+            else if(arguments.get(1).compareTo("DELETE") == 0 && this.callerChannelType == "MC"){
                 try {
                     ChunkFileInfo info = peerStorage.chunkInfos.chunkInfos.get(arguments.get(3));
                     if(info != null) {
@@ -103,7 +108,59 @@ public class MulticastResponseHandler extends Thread{
                 }
                 peerStorage.WriteInfoToChunkData();
             }
+            else if(arguments.get(1).compareTo("GETCHUNK") == 0 && this.callerChannelType == "MC"){
 
+                ChunkFileInfo info = peerStorage.chunkInfos.chunkInfos.get(arguments.get(3));
+                if (info != null) {
+                    //for (Integer currentChunkNo: info.chunks) {
+                    if(info.chunks.get(Integer.parseInt(arguments.get(4))) != null){
+                        String response = "1.0" + " " + "CHUNK" + " " + senderID + " " + arguments.get(3) + " " + arguments.get(4);
+                        byte[] header = new byte[response.length() + 4];
+                        System.arraycopy(response.getBytes(StandardCharsets.US_ASCII), 0, header, 0, response.length());
+
+
+                        header[response.length()] = 0x0D;
+                        header[response.length() + 1] = 0x0A;
+                        header[response.length() + 2] = 0x0D;
+                        header[response.length() + 3] = 0x0A;
+
+                        System.out.print("Header: ");
+                        for(int i = 0; i < header.length; i++){
+                            System.out.print(header[i]);
+                        }
+                        System.out.println("");
+
+
+                        File file = new File(path + "/" + arguments.get(3) + "-" + arguments.get(4));
+
+                        //TODO: IMPORTANT - MESSAGE SHOULD NOT BE SENT IF ANOTHER PEER HAS SENT THE CHUNK ALREADY IN THE MEANTIME OF THE SLEEP
+                        randomSleep(100, 400);
+
+                        byte[] message;
+                        try {
+                            message = MessageCreator.CreateChunkReclaimMessage(header, file);
+                            MDR.getSocket().send(new DatagramPacket(message, message.length, MDR.getGroup(), MDR.getInfo().getPort()));
+                        } catch (IOException e) {
+                            System.out.println("Could not create chunk reclaim message");
+                            e.printStackTrace();
+                        }
+
+
+                    }
+                }
+            }
+            else if(arguments.get(1).compareTo("CHUNK") == 0 && this.callerChannelType == "MDR") {
+                System.out.println(MC.peer.restoreFileChunks);
+                System.out.println(arguments.get(2));
+                System.out.println(MC.peer.restoreFileChunks.fileID);
+                //Version CHUNK SenderID FileID ChunkNO
+                if(MC.peer.restoreFileChunks != null){
+                    if(arguments.get(3).compareTo(MC.peer.restoreFileChunks.fileID) == 0){
+                        byte[] body = MessageParser.getBody(request);
+                        MC.peer.restoreFileChunks.addChunk(body, Integer.parseInt(arguments.get(4)));
+                    }
+                }
+            }
         }
         else{
             //System.out.println("Received own message");
