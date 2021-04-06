@@ -71,7 +71,8 @@ public class Peer implements IPeerRemote {
 
         //FileInfo currentFileInfo = fileInfos.addFile(new FileInfo(path, unencryptedFileID));
 
-        FileInfo currentFileInfo = this.peerStorage.infos.addFile(new FileInfo(path, unencryptedFileID));
+        int numberOfChunks = (int) (file.length() / 64000) + 1;
+        FileInfo currentFileInfo = this.peerStorage.infos.addFile(new FileInfo(path, unencryptedFileID, numberOfChunks));
 
 
 
@@ -107,7 +108,7 @@ public class Peer implements IPeerRemote {
             currentFileInfo.addChunkToArray(chunkNo);
             //currentFileInfo.usersBackingUp.add(new ArrayList<>());
             chunkBackupProtocol(currentMessage, chunkNo, numBytes + 4 + headerString.length(), replication, path);
-            this.peerStorage.WriteInfoToFileData();
+
 
             try {
                 Thread.sleep(1000);
@@ -117,6 +118,7 @@ public class Peer implements IPeerRemote {
             chunkNo++;
         }
 
+        this.peerStorage.WriteInfoToFileData();
         this.peerStorage.infos.printValuesHumanReadable();
         //this.peerStorage.WriteInfoToChunkData();
     }
@@ -190,13 +192,17 @@ public class Peer implements IPeerRemote {
         if(!file.canRead()){
             throw new FileNotFoundException("File exists but could not be read.");
         }
+        if(file.length() > (long) 64000 * 1000 * 1000){
+            throw new FileNotFoundException("File is too large to be read (Max size: 64 billion bytes).");
+        }
 
         String date = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(file.lastModified());
 
         String owner = Files.getFileAttributeView(Paths.get(path), FileOwnerAttributeView.class).getOwner().toString();
         String unencryptedFileID = file.getName() + date + owner;
 
-        FileInfo fileInfo = new FileInfo(path, unencryptedFileID);
+        int numberOfChunks = (int) (file.length() / 64000) + 1;
+        FileInfo fileInfo = new FileInfo(path, unencryptedFileID, numberOfChunks);
         String headerString = version + " " + "DELETE" + " " + senderID + " " + fileInfo.fileID;
         byte[] message = new byte[headerString.length() + 4];
         System.arraycopy(headerString.getBytes(StandardCharsets.UTF_8), 0, message, 0, headerString.length());

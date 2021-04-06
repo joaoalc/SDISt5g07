@@ -10,14 +10,16 @@ public class FileInfo {
     public String filePath;
     public String fileID;
     public String unencryptedFileID;
+    public int numberOfChunks;
     //Indexes are chunk numbers; Each string is a userID; Each Array is a list of users in the chunk
     public ArrayList<ArrayList<String>> usersBackingUp;
 
-    public FileInfo(String filePath, String unencryptedFileID, String fileID, ArrayList<ArrayList<String>> usersBackingUp){
+    public FileInfo(String filePath, String unencryptedFileID, String fileID, ArrayList<ArrayList<String>> usersBackingUp, int numberOfChunks){
         this.filePath = filePath;
         this.unencryptedFileID = unencryptedFileID;
         this.fileID = fileID;
         this.usersBackingUp = usersBackingUp;
+        this.numberOfChunks = numberOfChunks;
     }
 /*
     public FileInfo(String filePath, String unencryptedFileID, String fileID) {
@@ -34,13 +36,14 @@ public class FileInfo {
         this.usersBackingUp = usersBackingUp;
     }*/
 
-    public FileInfo(String filePath, String unencryptedFileID) {
+    public FileInfo(String filePath, String unencryptedFileID, int numberOfChunks) {
         try {
             this.filePath = filePath;
             this.unencryptedFileID = unencryptedFileID;
             this.fileID = toHexString(getSHA(unencryptedFileID));
             System.out.println();
             this.usersBackingUp = new ArrayList<>();
+            this.numberOfChunks = numberOfChunks;
         }
         catch(NoSuchAlgorithmException e){
             System.out.println("SHA256 no longer exists, appearantly.");

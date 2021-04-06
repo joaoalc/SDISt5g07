@@ -83,14 +83,19 @@ public class PeerStorage {
 
         //Read and insert info from file string
         for(int i = 0; i < num_files; i++){
-            FileInfo info = new FileInfo(scanner.nextLine(), scanner.nextLine());
+            String filePath = scanner.nextLine();
+            String unencryptedFileID = scanner.nextLine();
             String fileID = scanner.nextLine();
+            int numberOfChunks = Integer.parseInt(scanner.nextLine());
+            FileInfo info = new FileInfo(filePath, unencryptedFileID, numberOfChunks);
             if(info.fileID.compareTo(fileID) != 0){
                 System.out.println("File ID from file is incorrect, this is likely an error, so the id from the file will be ignored.");
             }
-            int numChunks = Integer.parseInt(scanner.nextLine());
-            for (int chunk = 0; chunk < numChunks; chunk++){
+            for (int chunk = 0; chunk < numberOfChunks; chunk++){
                 info.usersBackingUp.add(new ArrayList<>());
+                if(!scanner.hasNextLine()){
+                    break;
+                }
                 String chunkStr = scanner.nextLine();
                 String[] arr = chunkStr.split(" ");
                 if(Integer.parseInt(arr[0]) != chunk){
@@ -120,7 +125,7 @@ public class PeerStorage {
         //TODO: Convert to toString method override in PeerStorage
         String result = infos.fileInfos.size() + "\n";
         for(FileInfo fInfo: infos.fileInfos){
-            result += fInfo.filePath + "\n" + fInfo.unencryptedFileID + "\n" + fInfo.fileID + "\n" + fInfo.usersBackingUp.size() + "\n";
+            result += fInfo.filePath + "\n" + fInfo.unencryptedFileID + "\n" + fInfo.fileID + "\n" + fInfo.numberOfChunks + "\n";
             for(int i = 0; i < fInfo.usersBackingUp.size(); i++){
                 result += i + " " + fInfo.usersBackingUp.get(i).size();
                 for(int j = 0; j < fInfo.usersBackingUp.get(i).size(); j++){

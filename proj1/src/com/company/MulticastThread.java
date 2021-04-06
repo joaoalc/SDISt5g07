@@ -10,6 +10,7 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class MulticastThread extends Thread{
     protected MulticastSocket socket = null;
@@ -29,7 +30,7 @@ public class MulticastThread extends Thread{
     //The peer that owns this channel
     public Peer peer;
 
-
+    public HashMap<String, Peer> restorePeers = new HashMap<>();
 
     public MulticastThread(String IP, int port, String senderID, String channelType) throws IOException {
         name = new ChannelInfo();
