@@ -173,7 +173,6 @@ public class PeerStorage {
             for(int j = 0; j < Integer.parseInt(args[1]); j++){
                 info.chunks.add(Integer.parseInt(scanner.nextLine()));
             }
-
         }
         chunkInfos.printValuesHumanReadable();
 

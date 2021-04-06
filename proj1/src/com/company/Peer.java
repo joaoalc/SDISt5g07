@@ -59,7 +59,6 @@ public class Peer implements IPeerRemote {
         if(!file.canRead()){
             throw new FileNotFoundException("File exists but could not be read.");
         }
-        System.out.println(file.length());
         if(file.length() > (long) 64000 * 1000 * 1000){
             throw new FileNotFoundException("File is too large to be read (Max size: 64 billion bytes).");
         }
@@ -164,7 +163,6 @@ public class Peer implements IPeerRemote {
             message[headerString.length() + 1] = 0x0A;
             message[headerString.length() + 2] = 0x0D;
             message[headerString.length() + 3] = 0x0A;
-            System.out.println(headerString);
             MC.sendMessage(message, message.length);
             try {
                 Thread.sleep(1000);

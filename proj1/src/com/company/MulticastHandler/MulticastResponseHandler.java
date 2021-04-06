@@ -29,7 +29,9 @@ public class MulticastResponseHandler extends Thread{
 
     PeerStorage peerStorage;
 
-    public MulticastResponseHandler(String senderID, byte[] request, MulticastThread MC, MulticastThread MDB, MulticastThread MDR, PeerStorage peerStorage){
+    String callerChannelType;
+
+    public MulticastResponseHandler(String senderID, byte[] request, MulticastThread MC, MulticastThread MDB, MulticastThread MDR, PeerStorage peerStorage, String callerChannelType){
         super();
         this.senderID = senderID;
         this.request = request;
@@ -37,6 +39,7 @@ public class MulticastResponseHandler extends Thread{
         this.MDB = MDB;
         this.MDR = MDR;
         this.peerStorage = peerStorage;
+        this.callerChannelType = callerChannelType;
         System.setProperty("file.encoding", "US-ASCII");
 
         System.out.println("The charset used is :" + System.getProperty("file.encoding"));
@@ -52,7 +55,7 @@ public class MulticastResponseHandler extends Thread{
 
         //Is this my own message?
         if(arguments.get(2).compareTo(senderID) != 0) {
-            if (arguments.get(1).compareTo("PUTCHUNK") == 0) {
+            if (arguments.get(1).compareTo("PUTCHUNK") == 0 && this.callerChannelType == "MDB") {
                 System.out.println("Putchunk request.");
 
                 byte[] body = MessageParser.getBody(request);
@@ -81,11 +84,11 @@ public class MulticastResponseHandler extends Thread{
                     e.printStackTrace();
                 }
             }
-            else if(arguments.get(1).compareTo("STORED") == 0){
+            else if(arguments.get(1).compareTo("STORED") == 0 && this.callerChannelType == "MC"){
                 //Version STORED SenderID FileID ChunkNo
                 MC.peer.addStoredPeer(arguments.get(3), arguments.get(2), Integer.parseInt(arguments.get(4)));
             }
-            else if(arguments.get(1).compareTo("DELETE") == 0){
+            else if(arguments.get(1).compareTo("DELETE") == 0 && this.callerChannelType == "MC"){
                 try {
                     ChunkFileInfo info = peerStorage.chunkInfos.chunkInfos.get(arguments.get(3));
                     if(info != null) {
@@ -100,7 +103,7 @@ public class MulticastResponseHandler extends Thread{
                 }
                 peerStorage.WriteInfoToChunkData();
             }
-            else if(arguments.get(1).compareTo("GETCHUNK") == 0){
+            else if(arguments.get(1).compareTo("GETCHUNK") == 0 && this.callerChannelType == "MC"){
 
                 ChunkFileInfo info = peerStorage.chunkInfos.chunkInfos.get(arguments.get(3));
                 if (info != null) {
@@ -141,7 +144,7 @@ public class MulticastResponseHandler extends Thread{
                     }
                 }
             }
-            else if(arguments.get(1).compareTo("CHUNK") == 0) {
+            else if(arguments.get(1).compareTo("CHUNK") == 0 && this.callerChannelType == "MDR") {
                 System.out.println(MC.peer.restoreFileChunks);
                 System.out.println(arguments.get(2));
                 System.out.println(MC.peer.restoreFileChunks.fileID);
