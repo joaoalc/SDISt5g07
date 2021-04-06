@@ -9,7 +9,7 @@ public class ChunkFileInfos {
     public HashMap<String, ChunkFileInfo> chunkInfos = new HashMap<>();
 
 
-    public boolean addChunk(String fileID, int chunkNo){
+    /*public boolean addChunk(String fileID, int chunkNo){
         ChunkFileInfo a = chunkInfos.get(fileID);
         if(a == null){
             chunkInfos.put(fileID, new ChunkFileInfo());
@@ -17,6 +17,19 @@ public class ChunkFileInfos {
         }
         if(!a.chunkExists(chunkNo)){
             a.chunks.add(chunkNo);
+            return true;
+        }
+        return false;
+    }*/
+
+    public boolean addChunk(String fileID, Chunk chunk){
+        ChunkFileInfo a = chunkInfos.get(fileID);
+        if(a == null){
+            chunkInfos.put(fileID, new ChunkFileInfo());
+            a = chunkInfos.get(fileID);
+        }
+        if(!a.chunkExists(chunk.getChunkNo())){
+            a.chunks.add(chunk);
             return true;
         }
         return false;

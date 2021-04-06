@@ -190,8 +190,12 @@ public class PeerStorage {
         for(Map.Entry<String, ChunkFileInfo> set: chunkInfos.chunkInfos.entrySet()){
             //(File path of when this version of the file was inserted, file could've been manually moved or overwritte, in which case it would not be there)
             result += set.getKey() + " " + set.getValue().chunks.size() + "\n";
-            for(int i = 0; i < set.getValue().chunks.size(); i++) {
+            /*for(int i = 0; i < set.getValue().chunks.size(); i++) {
                 result += i + "\n";
+            }*/
+
+            for (Chunk chunk : set.getValue().chunks) {
+                result += chunk.toString() + "\n";
             }
         }
         try (FileOutputStream outputStream = new FileOutputStream(outputFile)) {

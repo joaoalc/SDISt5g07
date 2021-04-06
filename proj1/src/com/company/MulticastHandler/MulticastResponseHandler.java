@@ -2,6 +2,7 @@ package com.company.MulticastHandler;
 
 import com.company.MulticastThread;
 import com.company.Peer;
+import com.company.dataStructures.Chunk;
 import com.company.dataStructures.ChunkFileInfo;
 import com.company.dataStructures.PeerStorage;
 import com.company.utils.ChunkWritter;
@@ -56,7 +57,7 @@ public class MulticastResponseHandler extends Thread{
                 byte[] body = MessageParser.getBody(request);
                 System.out.println("Body size: " + body.length);
                 ChunkWritter.WriteChunk(body, path + "/" + arguments.get(3) + "-" + arguments.get(4));
-                peerStorage.chunkInfos.addChunk(arguments.get(3), Integer.parseInt(arguments.get(4)));
+                peerStorage.chunkInfos.addChunk(arguments.get(3), new Chunk(Integer.parseInt(arguments.get(4)), body.length, Integer.parseInt(arguments.get(5))));
                 peerStorage.WriteInfoToChunkData();
                 System.out.println("Sending now!");
                 try {
@@ -87,13 +88,13 @@ public class MulticastResponseHandler extends Thread{
                 try {
                     ChunkFileInfo info = peerStorage.chunkInfos.chunkInfos.get(arguments.get(3));
                     if(info != null) {
-                        for (Integer currentChunkNo : info.chunks) {
+                        /*for (Integer currentChunkNo : info.chunks) {
                             File file = new File(path + "/" + arguments.get(3) + "-" + currentChunkNo);
                             Files.deleteIfExists(file.toPath());
-                            /*if (!peerStorage.chunkInfos.removeChunk(arguments.get(3), Integer.parseInt(arguments.get(4)))) {
-                                System.out.println("Failed to remove chunk");
-                            }
-                            peerStorage.WriteInfoToChunkData();*/
+                        }*/
+                        for (Chunk chunk : info.chunks) {
+                            File file = new File(path + "/" + arguments.get(3) + "-" + chunk.getChunkNo());
+                            Files.deleteIfExists(file.toPath());
                         }
                     }
                     peerStorage.chunkInfos.chunkInfos.remove(arguments.get(3));
