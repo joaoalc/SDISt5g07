@@ -176,7 +176,10 @@ public class PeerStorage {
             ChunkFileInfo info = new ChunkFileInfo();
             chunkInfos.chunkInfos.put(args[0], info);
             for(int j = 0; j < Integer.parseInt(args[1]); j++){
-                info.chunks.add(Integer.parseInt(scanner.nextLine()));
+                //info.chunks.add(Integer.parseInt(scanner.nextLine()));
+                String chunksLine = scanner.nextLine();
+                String[] chunkArgs = chunksLine.split(" ");
+                info.chunks.add(new Chunk(Integer.parseInt(chunkArgs[0]), Integer.parseInt(chunkArgs[1]), Integer.parseInt(chunkArgs[2])));
             }
         }
         chunkInfos.printValuesHumanReadable();
