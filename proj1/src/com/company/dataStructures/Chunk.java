@@ -4,10 +4,13 @@ public class Chunk {
     private int chunkNo;
     private long size;
     private int desiredReplicationDegree;
+    private int perceivedReplicationDegree;
 
-    public Chunk(int chunkNo, long size, int desiredReplicationDegree) {
+    public Chunk(int chunkNo, long size, int desiredReplicationDegree, int perceivedReplicationDegree) {
+        this.chunkNo = chunkNo;
         this.size = size;
         this.desiredReplicationDegree = desiredReplicationDegree;
+        this.perceivedReplicationDegree = perceivedReplicationDegree;
     }
 
 
@@ -17,6 +20,10 @@ public class Chunk {
 
     public int getDesiredReplicationDegree() {
         return desiredReplicationDegree;
+    }
+
+    public int getPerceivedReplicationDegree(){
+        return perceivedReplicationDegree;
     }
 
     public int getChunkNo() {

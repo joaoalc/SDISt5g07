@@ -62,7 +62,7 @@ public class MulticastResponseHandler extends Thread{
                 byte[] body = MessageParser.getBody(request);
                 System.out.println("Body size: " + body.length);
                 ChunkWritter.WriteChunk(body, path + "/" + arguments.get(3) + "-" + arguments.get(4));
-                peerStorage.chunkInfos.addChunk(arguments.get(3), new Chunk(Integer.parseInt(arguments.get(4)), body.length, Integer.parseInt(arguments.get(5))));
+                peerStorage.chunkInfos.addChunk(arguments.get(3), new Chunk(Integer.parseInt(arguments.get(4)), body.length, Integer.parseInt(arguments.get(5)), 1));
                 peerStorage.WriteInfoToChunkData();
                 System.out.println("Sending now!");
                 try {
