@@ -1,3 +1,0 @@
-number_of_files
-file_id number_of_chunks
-chunk_num chunk_size desired_replication_degree perceived_replication_degree

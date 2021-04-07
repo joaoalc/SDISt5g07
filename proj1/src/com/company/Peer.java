@@ -1,5 +1,6 @@
 package com.company;
 
+import com.company.dataStructures.Chunk;
 import com.company.dataStructures.FileInfo;
 import com.company.dataStructures.FileInfos;
 import com.company.dataStructures.PeerStorage;
@@ -292,5 +293,6 @@ public class Peer implements IPeerRemote {
             return;
         }
         this.peerStorage.infos.findByFileID(fileID).addUser(userID, chunkNo);
+        //this.peerStorage.chunkInfos.addChunk(fileID, new Chunk())
     }
 }

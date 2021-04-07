@@ -10,6 +10,15 @@ public class ChunkFileInfo {
     public ChunkFileInfo(){
     }
 
+    public Chunk getChunk(int chunkNo) {
+        for (Chunk chunk : chunks) {
+            if (chunk.getChunkNo() == chunkNo) {
+                return chunk;
+            }
+        }
+        return null;
+    }
+
     public boolean chunkExists(int chunkNo){
         /*for(Integer i: chunks){
             if (i == chunkNo)

@@ -201,7 +201,7 @@ public class PeerStorage {
             }*/
 
             for (Chunk chunk : set.getValue().chunks) {
-                result += chunk.toString() + " " + chunk.getSize() + " "  + chunk.getDesiredReplicationDegree() + " "  + chunk.getPerceivedReplicationDegree() + "\n";
+                result += chunk.toString() + "\n";
             }
         }
         try (FileOutputStream outputStream = new FileOutputStream(outputFile)) {

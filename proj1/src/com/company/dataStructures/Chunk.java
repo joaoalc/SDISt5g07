@@ -30,8 +30,12 @@ public class Chunk {
         return chunkNo;
     }
 
+    public void incrementPerceivedReplicationDegree() {
+        this.perceivedReplicationDegree++;
+    }
+
     @Override
     public String toString() {
-        return chunkNo + " " + size + " " + desiredReplicationDegree;
+        return chunkNo + " " + size + " " + desiredReplicationDegree + " " + perceivedReplicationDegree;
     }
 }
