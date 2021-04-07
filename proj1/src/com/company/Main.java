@@ -12,7 +12,6 @@ public class Main {
 
 
     public static void main(String[] args) throws IOException {
-        //String senderID = args[0];
         String senderID = args[0];
 
 
