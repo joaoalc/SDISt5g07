@@ -1,7 +1,6 @@
 package com.company;
 
 import com.company.dataStructures.*;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -318,5 +317,6 @@ public class Peer implements IPeerRemote {
             return;
         }
         this.peerStorage.infos.findByFileID(fileID).addUser(userID, chunkNo);
+        //this.peerStorage.chunkInfos.addChunk(fileID, new Chunk())
     }
 }

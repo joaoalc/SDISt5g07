@@ -28,11 +28,30 @@ public class ChunkFileInfos {
             chunkInfos.put(fileID, new ChunkFileInfo());
             a = chunkInfos.get(fileID);
         }
+        System.out.println("Add chunk:");
+        for (String currentID : chunkInfos.keySet()) {
+            System.out.println("Current ID: " + currentID);
+        }
         if(!a.chunkExists(chunk.getChunkNo())){
             a.chunks.add(chunk);
             return true;
         }
         return false;
+    }
+
+    public void incrementChunkPerceivedReplicationDegree(String fileID, int chunkNo) {
+        System.out.println("Increment:");
+        for (String currentID : chunkInfos.keySet()) {
+            System.out.println("Current ID: " + currentID);
+        }
+        ChunkFileInfo chunkFileInfo = chunkInfos.get(fileID);
+        if (chunkFileInfo == null) {
+            return;
+        }
+
+        if (chunkFileInfo.chunkExists(chunkNo)) {
+            chunkFileInfo.getChunk(chunkNo).incrementPerceivedReplicationDegree();
+        }
     }
     
     public boolean removeChunk(String fileID, int chunkNo) {
