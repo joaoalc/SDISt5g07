@@ -1,13 +1,12 @@
 package com.company;
 
-import com.company.dataStructures.FileInfo;
-import com.company.dataStructures.FileInfos;
-import com.company.dataStructures.PeerStorage;
+import com.company.dataStructures.*;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -22,6 +21,7 @@ import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class Peer implements IPeerRemote {
@@ -150,10 +150,14 @@ public class Peer implements IPeerRemote {
         // TODO: implement this
 
         FileInfo fileInfo = peerStorage.infos.findByFilePath(path);
+        if(fileInfo == null){
+            System.out.println("File not found!");
+            return;
+        }
         String fileID = fileInfo.fileID;
 
         //TODO: Replace numChunks with the number of chunks in the file
-        restoreFileChunks = new TempFileChunks(18, fileID, new File(path));
+        restoreFileChunks = new TempFileChunks(fileInfo.numberOfChunks, fileID, new File(path));
 
         for(int chunkNo = 0; chunkNo < fileInfo.usersBackingUp.size(); chunkNo++) {
             String headerString = "1.0" + " " + "GETCHUNK" + " " + senderID + " " + fileID + " " + String.valueOf(chunkNo);
@@ -225,8 +229,30 @@ public class Peer implements IPeerRemote {
     }
 
     @Override
-    public void reclaim(int space) throws RemoteException {
-        // TODO: implement this
+    public void reclaim(long space, String version) throws RemoteException {
+        ArrayList<Chunk> chunks = new ArrayList<>();
+        if (version == "1.0"){
+            // TODO: implement this
+            long spaceOccupied = 0;
+            for (Map.Entry<String, ChunkFileInfo> file : peerStorage.chunkInfos.chunkInfos.entrySet()) {
+                for (Chunk chunk : file.getValue().chunks) {
+                    spaceOccupied += chunk.getSize();
+                    chunks.add(chunk);
+                }
+            }
+            if (spaceOccupied < space) {
+                System.out.println("Size greater than file size, no need to remove a chunk.");
+            } else {
+                System.out.println("Chunks need to be removed.");
+            }
+        }
+
+        chunks.sort(new ChunkComparator());
+        for(Chunk chunk: chunks){
+            System.out.println("Chunk");
+            System.out.println(chunk.getPerceivedReplicationDegree() - chunk.getDesiredReplicationDegree());
+            System.out.println(chunk.getSize());
+        }
     }
 
     public static void main(String[] args) {

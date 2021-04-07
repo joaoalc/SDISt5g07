@@ -30,7 +30,7 @@ public class MulticastThread extends Thread{
     //The peer that owns this channel
     public Peer peer;
 
-    public HashMap<String, Peer> restorePeers = new HashMap<>();
+    public HashMap<String, MulticastResponseHandler> restorePeers = new HashMap<>();
 
     public MulticastThread(String IP, int port, String senderID, String channelType) throws IOException {
         name = new ChannelInfo();

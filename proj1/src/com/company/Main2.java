@@ -34,8 +34,8 @@ public class Main2 {
         MDB.start();
         MDR.start();
 
-        System.out.println(peerStorage.getFilesDirectory(Integer.parseInt(senderID)) + "/spooky_month.gif");
-        peer.backup(peerStorage.getFilesDirectory(Integer.parseInt(senderID)) + "/spooky_month.gif", 1, "1.0");
+        System.out.println(peerStorage.getFilesDirectory(Integer.parseInt(senderID)) + "/runnel_thino.png");
+        peer.backup(peerStorage.getFilesDirectory(Integer.parseInt(senderID)) + "/runnel_thino.png", 3, "1.0");
         /*
         String message = "1.0 " + "PUTCHUNK " + "12312312312312312312312312312312 " + args[0] + " 0 " + "1";
 

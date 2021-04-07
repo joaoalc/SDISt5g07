@@ -23,17 +23,20 @@ public class TempFileChunks {
     public void addChunk(byte[] chunk, int chunkNo){
         chunks.put(chunkNo, chunk);
         System.out.println("Number of values: " + chunks.size());
+        System.out.println("numChunks: " + numChunks);
         if(chunks.size() == numChunks){
             createFile();
         }
     }
 
     void createFile(){
+        System.out.println("Creating file");
         try {
             FileOutputStream output = new FileOutputStream(file);
             for(int i = 0; i < numChunks; i++){
                 output.write(chunks.get(i), 0, chunks.get(i).length);
             }
+            System.out.println("File created");
         } catch (FileNotFoundException e) {
             System.out.println("Could not create file because there already is a file there.");
         } catch (IOException e) {

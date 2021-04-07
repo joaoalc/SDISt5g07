@@ -13,7 +13,7 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         //String senderID = args[0];
-        String senderID = "3";
+        String senderID = args[0];
 
 
         MulticastThread MC = new MulticastThread("230.0.0.0", 4446, senderID, "MC");

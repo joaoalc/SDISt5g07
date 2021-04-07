@@ -5,7 +5,7 @@ import com.company.dataStructures.PeerStorage;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
-public class MainDelete {
+public class MainReclaim {
 
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
         String senderID = args[0];
@@ -31,6 +31,7 @@ public class MainDelete {
         MDB.start();
         MDR.start();
 
-        peer.delete(peerStorage.getFilesDirectory(Integer.parseInt(senderID)) + "/runnel_thino.png", "1.0");
+        peer.reclaim(10000000, "1.0");
+
     }
 }

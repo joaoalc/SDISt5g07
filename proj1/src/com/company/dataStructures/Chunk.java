@@ -1,5 +1,7 @@
 package com.company.dataStructures;
 
+import java.util.Comparator;
+
 public class Chunk {
     private int chunkNo;
     private long size;
@@ -32,6 +34,8 @@ public class Chunk {
 
     @Override
     public String toString() {
-        return chunkNo + " " + size + " " + desiredReplicationDegree;
+        return chunkNo + " " + size + " " + desiredReplicationDegree + " " + perceivedReplicationDegree;
     }
+
+
 }

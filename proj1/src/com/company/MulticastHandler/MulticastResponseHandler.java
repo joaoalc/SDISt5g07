@@ -32,6 +32,8 @@ public class MulticastResponseHandler extends Thread{
 
     String callerChannelType;
 
+    RestoreInfo restoreInfo = null;
+
     public MulticastResponseHandler(String senderID, byte[] request, MulticastThread MC, MulticastThread MDB, MulticastThread MDR, PeerStorage peerStorage, String callerChannelType){
         super();
         this.senderID = senderID;
@@ -109,10 +111,15 @@ public class MulticastResponseHandler extends Thread{
                 peerStorage.WriteInfoToChunkData();
             }
             else if(arguments.get(1).compareTo("GETCHUNK") == 0 && this.callerChannelType == "MC"){
-
+                //<Version> GETCHUNK <SenderID> <FileID> <ChunkNo>
                 ChunkFileInfo info = peerStorage.chunkInfos.chunkInfos.get(arguments.get(3));
                 if (info != null) {
-                    //for (Integer currentChunkNo: info.chunks) {
+
+                    //Add to file queue
+                    MC.restorePeers.put(arguments.get(3) + "-" + arguments.get(4), this);
+                    restoreInfo = new RestoreInfo(arguments.get(3), arguments.get(4));
+
+
                     if(info.chunks.get(Integer.parseInt(arguments.get(4))) != null){
                         String response = "1.0" + " " + "CHUNK" + " " + senderID + " " + arguments.get(3) + " " + arguments.get(4);
                         byte[] header = new byte[response.length() + 4];
@@ -136,13 +143,19 @@ public class MulticastResponseHandler extends Thread{
                         //TODO: IMPORTANT - MESSAGE SHOULD NOT BE SENT IF ANOTHER PEER HAS SENT THE CHUNK ALREADY IN THE MEANTIME OF THE SLEEP
                         randomSleep(100, 400);
 
-                        byte[] message;
-                        try {
-                            message = MessageCreator.CreateChunkReclaimMessage(header, file);
-                            MDR.getSocket().send(new DatagramPacket(message, message.length, MDR.getGroup(), MDR.getInfo().getPort()));
-                        } catch (IOException e) {
-                            System.out.println("Could not create chunk reclaim message");
-                            e.printStackTrace();
+                        if(!restoreInfo.repeat) {
+
+                            byte[] message;
+                            try {
+                                message = MessageCreator.CreateChunkReclaimMessage(header, file);
+                                MDR.getSocket().send(new DatagramPacket(message, message.length, MDR.getGroup(), MDR.getInfo().getPort()));
+                            } catch (IOException e) {
+                                System.out.println("Could not create chunk reclaim message");
+                                e.printStackTrace();
+                            }
+                        }
+                        else{
+                            System.out.println("Not sending repeat message.");
                         }
 
 
@@ -150,10 +163,17 @@ public class MulticastResponseHandler extends Thread{
                 }
             }
             else if(arguments.get(1).compareTo("CHUNK") == 0 && this.callerChannelType == "MDR") {
-                System.out.println(MC.peer.restoreFileChunks);
-                System.out.println(arguments.get(2));
-                System.out.println(MC.peer.restoreFileChunks.fileID);
                 //Version CHUNK SenderID FileID ChunkNO
+                MulticastResponseHandler MRH = MC.restorePeers.get(arguments.get(3) + "-" + arguments.get(4));
+                System.out.println("Is there a peer sending this file back?");
+                System.out.println(arguments.get(3) + "-" + arguments.get(4));
+                System.out.println(MRH);
+                if(MRH != null){
+                    //MC.restorePeers.put(arguments.get(3) + "-" + arguments.get(4), this);
+                    System.out.println("Stopping other thread from sending CHUNK response");
+                    MRH.restoreInfo.repeat = true;
+                }
+
                 if(MC.peer.restoreFileChunks != null){
                     if(arguments.get(3).compareTo(MC.peer.restoreFileChunks.fileID) == 0){
                         byte[] body = MessageParser.getBody(request);
