@@ -89,7 +89,7 @@ public class Peer implements IPeerRemote {
             String headerString = version + " " + "PUTCHUNK" + " " + senderID + " " + fileID + " " + chunkNo + " " + replication;
             byte[] currentMessage = new byte[headerString.length() + 4 + 64000];
 
-            System.arraycopy(headerString.getBytes(StandardCharsets.UTF_8), 0, currentMessage, 0, headerString.length());
+            System.arraycopy(headerString.getBytes(StandardCharsets.US_ASCII), 0, currentMessage, 0, headerString.length());
 
 
 
@@ -146,7 +146,6 @@ public class Peer implements IPeerRemote {
 
     @Override
     public void restore(String path, String version) throws IOException {
-        // TODO: implement this
 
         FileInfo fileInfo = peerStorage.infos.findByFilePath(path);
         if(fileInfo == null){
@@ -155,7 +154,6 @@ public class Peer implements IPeerRemote {
         }
         String fileID = fileInfo.fileID;
 
-        //TODO: Replace numChunks with the number of chunks in the file
         restoreFileChunks = new TempFileChunks(fileInfo.numberOfChunks, fileID, new File(path));
 
         for(int chunkNo = 0; chunkNo < fileInfo.usersBackingUp.size(); chunkNo++) {
@@ -208,7 +206,7 @@ public class Peer implements IPeerRemote {
         FileInfo fileInfo = new FileInfo(path, unencryptedFileID, numberOfChunks);
         String headerString = version + " " + "DELETE" + " " + senderID + " " + fileInfo.fileID;
         byte[] message = new byte[headerString.length() + 4];
-        System.arraycopy(headerString.getBytes(StandardCharsets.UTF_8), 0, message, 0, headerString.length());
+        System.arraycopy(headerString.getBytes(StandardCharsets.US_ASCII), 0, message, 0, headerString.length());
 
         message[headerString.length()] = 0x0D;
         message[headerString.length() + 1] = 0x0A;
@@ -228,7 +226,7 @@ public class Peer implements IPeerRemote {
     }
 
     @Override
-    public void reclaim(long space, String version) throws RemoteException {
+    public void reclaim(long space, String version) throws IOException {
         ArrayList<Chunk> chunks = new ArrayList<>();
         if (version == "1.0"){
             // TODO: implement this
@@ -244,14 +242,29 @@ public class Peer implements IPeerRemote {
             } else {
                 System.out.println("Chunks need to be removed.");
             }
+            chunks.sort(new ChunkComparator());
+            while(spaceOccupied > space){
+                Chunk removedChunk = chunks.remove(0);
+                String fileID = removedChunk.getFileID();
+                int chunkNo = removedChunk.getChunkNo();
+                peerStorage.chunkInfos.chunkInfos.get(fileID).removeChunk(chunkNo);
+                String headerString = version + " " + "REMOVED" + " " + senderID + " " + fileID + " " + chunkNo;
+                byte[] message = new byte[headerString.length() + 4];
+                System.arraycopy(headerString.getBytes(StandardCharsets.US_ASCII), 0, message, 0, headerString.length());
+
+                message[headerString.length()] = 0x0D;
+                message[headerString.length() + 1] = 0x0A;
+                message[headerString.length() + 2] = 0x0D;
+                message[headerString.length() + 3] = 0x0A;
+
+
+                MC.sendMessage(message, message.length);
+
+            }
         }
 
-        chunks.sort(new ChunkComparator());
-        for(Chunk chunk: chunks){
-            System.out.println("Chunk");
-            System.out.println(chunk.getPerceivedReplicationDegree() - chunk.getDesiredReplicationDegree());
-            System.out.println(chunk.getSize());
-        }
+
+
     }
 
     public static void main(String[] args) {
@@ -262,7 +275,7 @@ public class Peer implements IPeerRemote {
         /*for (int i = 0; i < headerString.length(); i++) {
             currentMessage[i] = (byte) headerString.charAt(i);
         }*/
-        System.arraycopy(headerString.getBytes(StandardCharsets.UTF_8), 0, currentMessage, 0, headerString.length());
+        System.arraycopy(headerString.getBytes(StandardCharsets.US_ASCII), 0, currentMessage, 0, headerString.length());
 
         for (int i = 0; i < headerString.length(); i++) {
             System.out.println(currentMessage[i]);

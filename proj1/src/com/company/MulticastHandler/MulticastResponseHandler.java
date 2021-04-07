@@ -5,6 +5,7 @@ import com.company.MulticastThread;
 import com.company.Peer;
 import com.company.dataStructures.Chunk;
 import com.company.dataStructures.ChunkFileInfo;
+import com.company.dataStructures.ChunkFileInfos;
 import com.company.dataStructures.PeerStorage;
 import com.company.utils.ChunkWritter;
 import com.company.utils.MessageCreator;
@@ -64,7 +65,7 @@ public class MulticastResponseHandler extends Thread{
                 byte[] body = MessageParser.getBody(request);
                 System.out.println("Body size: " + body.length);
                 ChunkWritter.WriteChunk(body, path + "/" + arguments.get(3) + "-" + arguments.get(4));
-                peerStorage.chunkInfos.addChunk(arguments.get(3), new Chunk(Integer.parseInt(arguments.get(4)), body.length, Integer.parseInt(arguments.get(5)), 1));
+                peerStorage.chunkInfos.addChunk(arguments.get(3), new Chunk(Integer.parseInt(arguments.get(4)), body.length, Integer.parseInt(arguments.get(5)), 1, arguments.get(3)));
                 peerStorage.WriteInfoToChunkData();
                 System.out.println("Sending now!");
                 try {
@@ -179,6 +180,23 @@ public class MulticastResponseHandler extends Thread{
                     if(arguments.get(3).compareTo(MC.peer.restoreFileChunks.fileID) == 0){
                         byte[] body = MessageParser.getBody(request);
                         MC.peer.restoreFileChunks.addChunk(body, Integer.parseInt(arguments.get(4)));
+                    }
+                }
+            }
+            else if(arguments.get(1).compareTo("REMOVED") == 0 && this.callerChannelType == "MC"){
+                //<Version> REMOVED <SenderId> <FileId> <ChunkNo>
+                ChunkFileInfos CFIS = MC.peer.peerStorage.chunkInfos;
+                ChunkFileInfo CFI = CFIS.chunkInfos.get(arguments.get(3));
+                if(CFI != null){
+                    Chunk chunk = CFI.chunks.get(Integer.parseInt(arguments.get(4)));
+                    if(chunk != null){
+                        chunk.decrementPerceivedReplicationDegree();
+                        if(chunk.getPerceivedReplicationDegree() == 0){
+                            chunk.incrementPerceivedReplicationDegree();
+                        }
+                        if(chunk.getPerceivedReplicationDegree() < chunk.getDesiredReplicationDegree()){
+                            
+                        }
                     }
                 }
             }

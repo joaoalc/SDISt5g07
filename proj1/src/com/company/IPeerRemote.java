@@ -10,5 +10,5 @@ public interface IPeerRemote extends Remote {
     void backup(String path, int replication, String version) throws IOException, NoSuchAlgorithmException;
     void restore(String path, String version) throws IOException;
     void delete(String path, String version) throws IOException, NoSuchAlgorithmException;
-    void reclaim(long space, String version) throws RemoteException;
+    void reclaim(long space, String version) throws IOException;
 }
