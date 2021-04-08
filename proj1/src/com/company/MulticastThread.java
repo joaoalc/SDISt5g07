@@ -1,6 +1,7 @@
 package com.company;
 
 import com.company.MulticastHandler.MulticastResponseHandler;
+import com.company.MulticastHandler.RemoveInfo;
 import com.company.dataStructures.ChannelInfo;
 import com.company.utils.MessageParser;
 
@@ -31,6 +32,9 @@ public class MulticastThread extends Thread{
     public Peer peer;
 
     public HashMap<String, MulticastResponseHandler> restorePeers = new HashMap<>();
+
+    //MC has it; used to store peers that received the REMOVED command
+    public HashMap<String, RemoveInfo> removePeers = new HashMap<>();
 
     public MulticastThread(String IP, int port, String senderID, String channelType) throws IOException {
         name = new ChannelInfo();

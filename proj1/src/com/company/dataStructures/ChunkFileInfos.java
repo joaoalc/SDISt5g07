@@ -1,5 +1,7 @@
 package com.company.dataStructures;
 
+import com.company.Peer;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,8 +41,8 @@ public class ChunkFileInfos {
         return false;
     }
 
-    public void incrementChunkPerceivedReplicationDegree(String fileID, int chunkNo) {
-        System.out.println("Increment:");
+    public void incrementChunkPerceivedReplicationDegree(String fileID, int chunkNo, PeerStorage peerStorage) {
+        System.out.println("Incremented perceived replication degree of file with id and chunk number " + fileID + " " + chunkNo);
         for (String currentID : chunkInfos.keySet()) {
             System.out.println("Current ID: " + currentID);
         }
@@ -50,7 +52,7 @@ public class ChunkFileInfos {
         }
 
         if (chunkFileInfo.chunkExists(chunkNo)) {
-            chunkFileInfo.getChunk(chunkNo).incrementPerceivedReplicationDegree();
+            chunkFileInfo.getChunk(chunkNo).incrementPerceivedReplicationDegree(peerStorage);
         }
     }
     

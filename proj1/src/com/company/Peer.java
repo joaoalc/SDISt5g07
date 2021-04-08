@@ -45,6 +45,7 @@ public class Peer implements IPeerRemote {
         this.peerStorage = peerStorage;
         peerStorage.ReadInfoFromChunkData();
         peerStorage.ReadInfoFromFileData();
+        System.setProperty("file.encoding", "US-ASCII");
     }
 
     @Override
@@ -105,7 +106,6 @@ public class Peer implements IPeerRemote {
             }
 
             currentFileInfo.addChunkToArray(chunkNo);
-            //currentFileInfo.usersBackingUp.add(new ArrayList<>());
             chunkBackupProtocol(currentMessage, chunkNo, numBytes + 4 + headerString.length(), replication, path);
 
 
@@ -119,16 +119,63 @@ public class Peer implements IPeerRemote {
 
         this.peerStorage.WriteInfoToFileData();
         this.peerStorage.infos.printValuesHumanReadable();
-        //this.peerStorage.WriteInfoToChunkData();
+    }
+
+    public void backupChunk(String fileID, int replication, int chunkNo, String version) throws IOException {
+        if(version == "1.0"){
+            File file = new File(peerStorage.getChunksDirectory(Integer.parseInt(senderID)) + "/" + fileID + "-" + chunkNo);
+            if(!file.exists()){
+                throw new FileNotFoundException("File was not found.");
+            }
+            if(!file.canRead()){
+                throw new FileNotFoundException("File exists but could not be read.");
+            }
+            if(file.length() > (long) 64000 * 1000 * 1000){
+                throw new FileNotFoundException("File is too large to be read (Max size: 64 billion bytes).");
+            }
+
+            FileInputStream objReader = new FileInputStream(file);
+            String headerString = version + " " + "PUTCHUNK" + " " + senderID + " " + fileID + " " + chunkNo + " " + replication;
+            byte[] currentMessage = new byte[headerString.length() + 4 + 64000];
+            System.arraycopy(headerString.getBytes(StandardCharsets.US_ASCII), 0, currentMessage, 0, headerString.length());
+            currentMessage[headerString.length()] = 0x0D;
+            currentMessage[headerString.length() + 1] = 0x0A;
+            currentMessage[headerString.length() + 2] = 0x0D;
+            currentMessage[headerString.length() + 3] = 0x0A;
+
+            //Fill the rest of the array containing the chunk with the file. Since the size of the array is fixed, we have to save the amount of bytes read to only send that through the multicast port
+            int numBytes = objReader.read(currentMessage, headerString.length() + 4, 64000);
+            if(numBytes == -1){
+                System.out.println("Nothing to read in file! Exiting!");
+                return;
+            }
+            singleChunkBackupProtocol(currentMessage, chunkNo, numBytes + headerString.length() + 4, fileID);
+
+
+
+        }
+
+    }
+
+    public void singleChunkBackupProtocol(byte[] message, int chunkNo, int bytesToSend, String fileID) throws IOException {
+        for(int i = 0; i <= 4; i++) {
+            if(this.peerStorage.chunkInfos.chunkInfos.get(fileID).chunks.get(chunkNo).getPerceivedReplicationDegree() >= this.peerStorage.chunkInfos.chunkInfos.get(fileID).chunks.get(chunkNo).getDesiredReplicationDegree()){
+                break;
+            }
+            MDB.sendMessage(message, bytesToSend);
+            if(i < 4) {
+                try {
+                    System.out.println("Sleeping now for " + Math.pow(2, i) + " seconds.");
+                    Thread.sleep(1000 * (int) (Math.pow(2, i)));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     public void chunkBackupProtocol(byte[] message, int chunkNo, int bytesToSend, int replicationDeg, String filePath) throws IOException {
         for(int i = 0; i <= 4; i++) {
-            /*System.out.println("Current replication degree: " + fileInfos.findByFilePath(filePath).usersBackingUp.get(chunkNo).size());
-            if(fileInfos.findByFilePath(filePath).usersBackingUp.get(chunkNo).size() >= replicationDeg){
-                break;
-            }*/
-            System.out.println("Current replication degree: " + this.peerStorage.infos.findByFilePath(filePath).usersBackingUp.get(chunkNo).size());
             if(this.peerStorage.infos.findByFilePath(filePath).usersBackingUp.get(chunkNo).size() >= replicationDeg){
                 break;
             }
@@ -237,16 +284,19 @@ public class Peer implements IPeerRemote {
                     chunks.add(chunk);
                 }
             }
-            if (spaceOccupied < space) {
-                System.out.println("Size greater than file size, no need to remove a chunk.");
+            if (spaceOccupied <= space) {
+                System.out.println("Size greater or equal to total file size, no need to remove a chunk.");
             } else {
                 System.out.println("Chunks need to be removed.");
             }
             chunks.sort(new ChunkComparator());
+
             while(spaceOccupied > space){
+                System.out.println("Removing file");
                 Chunk removedChunk = chunks.remove(0);
                 String fileID = removedChunk.getFileID();
                 int chunkNo = removedChunk.getChunkNo();
+                spaceOccupied -= removedChunk.getSize();
                 peerStorage.chunkInfos.chunkInfos.get(fileID).removeChunk(chunkNo);
                 String headerString = version + " " + "REMOVED" + " " + senderID + " " + fileID + " " + chunkNo;
                 byte[] message = new byte[headerString.length() + 4];
@@ -256,10 +306,10 @@ public class Peer implements IPeerRemote {
                 message[headerString.length() + 1] = 0x0A;
                 message[headerString.length() + 2] = 0x0D;
                 message[headerString.length() + 3] = 0x0A;
-
-
+                File file = new File(peerStorage.getChunksDirectory(Integer.parseInt(senderID)) + "/" + fileID + "-" + chunkNo);
+                Files.deleteIfExists(file.toPath());
+                peerStorage.WriteInfoToChunkData();
                 MC.sendMessage(message, message.length);
-
             }
         }
 

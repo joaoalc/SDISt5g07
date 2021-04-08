@@ -34,12 +34,14 @@ public class Chunk {
         return chunkNo;
     }
 
-    public void incrementPerceivedReplicationDegree() {
+    public void incrementPerceivedReplicationDegree(PeerStorage peerStorage) {
         this.perceivedReplicationDegree++;
+        peerStorage.WriteInfoToChunkData();
     }
 
-    public void decrementPerceivedReplicationDegree() {
+    public void decrementPerceivedReplicationDegree(PeerStorage peerStorage) {
         this.perceivedReplicationDegree--;
+        peerStorage.WriteInfoToChunkData();
     }
 
     public String getFileID(){ return fileID;}

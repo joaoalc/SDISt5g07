@@ -26,12 +26,10 @@ public class MainReclaim {
         MDB.setPeer(peer);
         MDR.setPeer(peer);
 
-
         MC.start();
         MDB.start();
         MDR.start();
 
-        peer.reclaim(10000000, "1.0");
-
+        peer.reclaim(535958, "1.0");
     }
 }

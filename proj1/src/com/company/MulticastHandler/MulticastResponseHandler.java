@@ -45,8 +45,6 @@ public class MulticastResponseHandler extends Thread{
         this.peerStorage = peerStorage;
         this.callerChannelType = callerChannelType;
         System.setProperty("file.encoding", "US-ASCII");
-
-        System.out.println("The charset used is :" + System.getProperty("file.encoding"));
         path = MC.peer.peerStorage.getChunksDirectory(Integer.parseInt(senderID));
     }
 
@@ -60,6 +58,21 @@ public class MulticastResponseHandler extends Thread{
         //Is this my own message?
         if(arguments.get(2).compareTo(senderID) != 0) {
             if (arguments.get(1).compareTo("PUTCHUNK") == 0 && this.callerChannelType == "MDB") {
+                //<Version> PUTCHUNK <SenderId> <FileId> <ChunkNo> <ReplicationDeg>
+
+                //Find if someone else has received the REMOVE command recently
+                RemoveInfo rInfo = MC.removePeers.get(arguments.get(3) + "-" + arguments.get(4));
+                if(rInfo != null){
+                    rInfo.repeat = true;
+                    System.out.println("No other thread will try to backup a chunk now.");
+                }
+
+                //Cannot back up own message
+                if(peerStorage.infos.findByFileID(arguments.get(3)) == null){
+                    System.out.println("This peer owns the file; not backing it up.");
+                    return;
+                }
+
                 System.out.println("Putchunk request.");
 
                 byte[] body = MessageParser.getBody(request);
@@ -78,7 +91,6 @@ public class MulticastResponseHandler extends Thread{
                     baos.write(message.getBytes(StandardCharsets.UTF_8));
                     byte[] arr = {0x0D, 0x0A, 0x0D, 0x0A};
                     baos.write(arr);
-                    //byte[] b1 = msgNoEndLine.getBytes(StandardCharsets.UTF_8);
                     byte[] b2 = baos.toByteArray();
 
                     randomSleep(100, 400);
@@ -91,16 +103,12 @@ public class MulticastResponseHandler extends Thread{
             else if(arguments.get(1).compareTo("STORED") == 0 && this.callerChannelType == "MC"){
                 //Version STORED SenderID FileID ChunkNo
                 MC.peer.addStoredPeer(arguments.get(3), arguments.get(2), Integer.parseInt(arguments.get(4)));
-                peerStorage.chunkInfos.incrementChunkPerceivedReplicationDegree(arguments.get(3), Integer.parseInt(arguments.get(4)));
+                peerStorage.chunkInfos.incrementChunkPerceivedReplicationDegree(arguments.get(3), Integer.parseInt(arguments.get(4)), peerStorage);
             }
             else if(arguments.get(1).compareTo("DELETE") == 0 && this.callerChannelType == "MC"){
                 try {
                     ChunkFileInfo info = peerStorage.chunkInfos.chunkInfos.get(arguments.get(3));
                     if(info != null) {
-                        /*for (Integer currentChunkNo : info.chunks) {
-                            File file = new File(path + "/" + arguments.get(3) + "-" + currentChunkNo);
-                            Files.deleteIfExists(file.toPath());
-                        }*/
                         for (Chunk chunk : info.chunks) {
                             File file = new File(path + "/" + arguments.get(3) + "-" + chunk.getChunkNo());
                             Files.deleteIfExists(file.toPath());
@@ -133,11 +141,12 @@ public class MulticastResponseHandler extends Thread{
                         header[response.length() + 2] = 0x0D;
                         header[response.length() + 3] = 0x0A;
 
+                        /*
                         System.out.print("Header: ");
                         for(int i = 0; i < header.length; i++){
                             System.out.print(header[i]);
                         }
-                        System.out.println("");
+                        System.out.println("");*/
 
 
                         File file = new File(path + "/" + arguments.get(3) + "-" + arguments.get(4));
@@ -167,9 +176,6 @@ public class MulticastResponseHandler extends Thread{
             else if(arguments.get(1).compareTo("CHUNK") == 0 && this.callerChannelType == "MDR") {
                 //Version CHUNK SenderID FileID ChunkNO
                 MulticastResponseHandler MRH = MC.restorePeers.get(arguments.get(3) + "-" + arguments.get(4));
-                System.out.println("Is there a peer sending this file back?");
-                System.out.println(arguments.get(3) + "-" + arguments.get(4));
-                System.out.println(MRH);
                 if(MRH != null){
                     //MC.restorePeers.put(arguments.get(3) + "-" + arguments.get(4), this);
                     System.out.println("Stopping other thread from sending CHUNK response");
@@ -190,12 +196,31 @@ public class MulticastResponseHandler extends Thread{
                 if(CFI != null){
                     Chunk chunk = CFI.chunks.get(Integer.parseInt(arguments.get(4)));
                     if(chunk != null){
-                        chunk.decrementPerceivedReplicationDegree();
+                        chunk.decrementPerceivedReplicationDegree(MC.peer.peerStorage);
                         if(chunk.getPerceivedReplicationDegree() == 0){
-                            chunk.incrementPerceivedReplicationDegree();
+                            chunk.incrementPerceivedReplicationDegree(MC.peer.peerStorage);
                         }
                         if(chunk.getPerceivedReplicationDegree() < chunk.getDesiredReplicationDegree()){
-                            
+                            RemoveInfo removeInfo = new RemoveInfo(arguments.get(3), arguments.get(4), this);
+                            MC.removePeers.put(arguments.get(3) + "-" + arguments.get(4), removeInfo);
+
+                            randomSleep(100, 400);
+                            //Interrupt other processes trying to backup this chunk
+                            RemoveInfo rInfo = MC.removePeers.get(arguments.get(3) + "-" + arguments.get(4));
+                            if(rInfo != null){
+                                if(rInfo.repeat == true){
+                                    System.out.println("Another chunk is already going to be backed up.");
+                                    return;
+                                }
+                            }
+                            try {
+                                MDB.peer.backupChunk(arguments.get(3), chunk.getDesiredReplicationDegree(), Integer.parseInt(arguments.get(4)), "1.0");
+                                System.out.println("Sent putchunk message now!");
+                                MC.removePeers.remove(arguments.get(3) + "-" + arguments.get(2));
+                            } catch (IOException e) {
+                                System.out.println("Could not execute chunk backup.");
+                                e.printStackTrace();
+                            }
                         }
                     }
                 }
