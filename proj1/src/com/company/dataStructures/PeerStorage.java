@@ -12,11 +12,12 @@ import java.util.Scanner;
 public class PeerStorage {
     public FileInfos infos;
     public ChunkFileInfos chunkInfos;
+    public int total_space;
 
     //Where you read/store files
-    public final String PEER_FILES_DIR = "files/files/peer-";
+    public final String PEER_FILES_DIR = "files/files/peer-"; //Inner paths are hard coded in a function; DO NOT CHANGE
     //Where you store chunks of a file
-    public final String PEER_CHUNKS_DIR = "files/chunks/peer-";
+    public final String PEER_CHUNKS_DIR = "files/chunks/peer-"; //Inner paths are hard coded in a function; DO NOT CHANGE
 
     //Filenames that contain the info of every file/chunk
     public final String PEER_FILES_INFO_NAME = "fileInfo.txt";
@@ -39,14 +40,28 @@ public class PeerStorage {
     }
 
     public void createDirectory(int peerID) throws IOException {
-        Path filesPath = Paths.get(PEER_FILES_DIR + peerID);
-        if(!Files.exists(filesPath))
+        Path generalPath = Paths.get("files");
+        if(!Files.exists(generalPath)){
+            Files.createDirectory(generalPath);
+        }
+        Path filesPath = Paths.get("files/files");
+        if(!Files.exists(filesPath)){
             Files.createDirectory(filesPath);
-
-        Path chunksPath = Paths.get(PEER_CHUNKS_DIR + peerID);
-        if(!Files.exists(chunksPath))
+        }
+        Path chunksPath = Paths.get("files/chunks");
+        if(!Files.exists(chunksPath)) {
             Files.createDirectory(chunksPath);
+        }
+        Path peerFilesPath = Paths.get(PEER_FILES_DIR + peerID);
+        if(!Files.exists(peerFilesPath))
+            Files.createDirectory(peerFilesPath);
+
+        Path peerChunksPath = Paths.get(PEER_CHUNKS_DIR + peerID);
+        if(!Files.exists(peerChunksPath))
+            Files.createDirectory(peerChunksPath);
     }
+
+
 
     public String getFilesDirectory(int peerID){
         return PEER_FILES_DIR + peerID;
@@ -64,6 +79,8 @@ public class PeerStorage {
             fileInfoInput = new FileInputStream(PEER_FILES_DIR + peerID + "/" + PEER_FILES_INFO_NAME);
         }
         else{
+            FileOutputStream fileOutputStream = new FileOutputStream(file);
+            fileOutputStream.write("0".getBytes(StandardCharsets.US_ASCII));
             return;
         }
 
@@ -155,6 +172,8 @@ public class PeerStorage {
             fileInfoInput = new FileInputStream(PEER_CHUNKS_DIR + peerID + "/" + PEER_CHUNKS_INFO_NAME);
         }
         else{
+            FileOutputStream fileOutputStream = new FileOutputStream(file);
+            fileOutputStream.write("0".getBytes(StandardCharsets.US_ASCII));
             return;
         }
 

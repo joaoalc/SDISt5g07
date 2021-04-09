@@ -64,11 +64,11 @@ public class MulticastResponseHandler extends Thread{
                 RemoveInfo rInfo = MC.removePeers.get(arguments.get(3) + "-" + arguments.get(4));
                 if(rInfo != null){
                     rInfo.repeat = true;
-                    System.out.println("No other thread will try to backup a chunk now.");
+                    System.out.println("This peer won't try to backup " + arguments.get(4) + " now.");
                 }
 
                 //Cannot back up own message
-                if(peerStorage.infos.findByFileID(arguments.get(3)) == null){
+                if(peerStorage.infos.findByFileID(arguments.get(3)) != null){
                     System.out.println("This peer owns the file; not backing it up.");
                     return;
                 }
@@ -204,6 +204,9 @@ public class MulticastResponseHandler extends Thread{
                             RemoveInfo removeInfo = new RemoveInfo(arguments.get(3), arguments.get(4), this);
                             MC.removePeers.put(arguments.get(3) + "-" + arguments.get(4), removeInfo);
 
+                            if(arguments.get(4).compareTo("1") == 0){
+                                System.out.println("Chunk 1 about to sleep");
+                            }
                             randomSleep(100, 400);
                             //Interrupt other processes trying to backup this chunk
                             RemoveInfo rInfo = MC.removePeers.get(arguments.get(3) + "-" + arguments.get(4));
@@ -215,10 +218,16 @@ public class MulticastResponseHandler extends Thread{
                             }
                             try {
                                 MDB.peer.backupChunk(arguments.get(3), chunk.getDesiredReplicationDegree(), Integer.parseInt(arguments.get(4)), "1.0");
-                                System.out.println("Sent putchunk message now!");
+
+                                if(arguments.get(4).compareTo("1") == 0){
+                                    System.out.println("Sent putchunk message now!");
+                                }
                                 MC.removePeers.remove(arguments.get(3) + "-" + arguments.get(2));
                             } catch (IOException e) {
-                                System.out.println("Could not execute chunk backup.");
+
+                                if(arguments.get(4).compareTo("1") == 0) {
+                                    System.out.println("Could not execute chunk backup.");
+                                }
                                 e.printStackTrace();
                             }
                         }

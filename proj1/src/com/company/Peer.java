@@ -136,6 +136,7 @@ public class Peer implements IPeerRemote {
 
             FileInputStream objReader = new FileInputStream(file);
             String headerString = version + " " + "PUTCHUNK" + " " + senderID + " " + fileID + " " + chunkNo + " " + replication;
+            System.out.println("Sending header string: " + headerString);
             byte[] currentMessage = new byte[headerString.length() + 4 + 64000];
             System.arraycopy(headerString.getBytes(StandardCharsets.US_ASCII), 0, currentMessage, 0, headerString.length());
             currentMessage[headerString.length()] = 0x0D;
@@ -146,7 +147,7 @@ public class Peer implements IPeerRemote {
             //Fill the rest of the array containing the chunk with the file. Since the size of the array is fixed, we have to save the amount of bytes read to only send that through the multicast port
             int numBytes = objReader.read(currentMessage, headerString.length() + 4, 64000);
             if(numBytes == -1){
-                System.out.println("Nothing to read in file! Exiting!");
+                numBytes = 0;
                 return;
             }
             singleChunkBackupProtocol(currentMessage, chunkNo, numBytes + headerString.length() + 4, fileID);
@@ -291,6 +292,31 @@ public class Peer implements IPeerRemote {
             }
             chunks.sort(new ChunkComparator());
 
+            System.out.println("Number of chunks: " + chunks.size());
+            if(space == 0){
+                while(chunks.size() > 0){
+                    System.out.println("Removing file");
+                    Chunk removedChunk = chunks.remove(0);
+                    String fileID = removedChunk.getFileID();
+                    int chunkNo = removedChunk.getChunkNo();
+                    spaceOccupied -= removedChunk.getSize();
+                    peerStorage.chunkInfos.chunkInfos.get(fileID).removeChunk(chunkNo);
+                    String headerString = version + " " + "REMOVED" + " " + senderID + " " + fileID + " " + chunkNo;
+                    byte[] message = new byte[headerString.length() + 4];
+                    System.arraycopy(headerString.getBytes(StandardCharsets.US_ASCII), 0, message, 0, headerString.length());
+
+                    message[headerString.length()] = 0x0D;
+                    message[headerString.length() + 1] = 0x0A;
+                    message[headerString.length() + 2] = 0x0D;
+                    message[headerString.length() + 3] = 0x0A;
+                    File file = new File(peerStorage.getChunksDirectory(Integer.parseInt(senderID)) + "/" + fileID + "-" + chunkNo);
+                    Files.deleteIfExists(file.toPath());
+                    peerStorage.WriteInfoToChunkData();
+                    MC.sendMessage(message, message.length);
+                    System.out.println("Number of chunks: " + chunks.size());
+                }
+            }
+
             while(spaceOccupied > space){
                 System.out.println("Removing file");
                 Chunk removedChunk = chunks.remove(0);
@@ -310,6 +336,11 @@ public class Peer implements IPeerRemote {
                 Files.deleteIfExists(file.toPath());
                 peerStorage.WriteInfoToChunkData();
                 MC.sendMessage(message, message.length);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
