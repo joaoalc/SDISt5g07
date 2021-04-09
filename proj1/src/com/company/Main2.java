@@ -9,7 +9,6 @@ import java.security.NoSuchAlgorithmException;
 
 public class Main2 {
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
-        //String senderID = args[0];
         String senderID = args[0];
 
         MulticastThread MC = new MulticastThread("230.0.0.0", 4446, senderID, "MC");
@@ -19,7 +18,7 @@ public class Main2 {
 
         PeerStorage peerStorage = new PeerStorage(Integer.parseInt(senderID));
 
-        Peer peer = new Peer(MC, MDB, MDR, senderID, peerStorage);
+        Peer peer = new Peer("1.0", MC, MDB, MDR, senderID, peerStorage);
 
         MC.setChannelSockets(MC, MDB, MDR);
         MDB.setChannelSockets(MC, MDB, MDR);
@@ -35,7 +34,7 @@ public class Main2 {
         MDR.start();
 
         System.out.println(peerStorage.getFilesDirectory(Integer.parseInt(senderID)) + "/spooky_month.gif");
-        peer.backup(peerStorage.getFilesDirectory(Integer.parseInt(senderID)) + "/spooky_month.gif", 1, "1.0");
+        peer.backup(peerStorage.getFilesDirectory(Integer.parseInt(senderID)) + "/spooky_month.gif", 1);
         /*
         String message = "1.0 " + "PUTCHUNK " + "12312312312312312312312312312312 " + args[0] + " 0 " + "1";
 

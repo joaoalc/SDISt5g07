@@ -16,7 +16,7 @@ public class MainRestore {
 
         PeerStorage peerStorage = new PeerStorage(Integer.parseInt(senderID));
 
-        Peer peer = new Peer(MC, MDB, MDR, senderID, peerStorage);
+        Peer peer = new Peer("1.0", MC, MDB, MDR, senderID, peerStorage);
 
         MC.setChannelSockets(MC, MDB, MDR);
         MDB.setChannelSockets(MC, MDB, MDR);
@@ -31,7 +31,7 @@ public class MainRestore {
         MDB.start();
         MDR.start();
 
-        peer.restore(peerStorage.getFilesDirectory(Integer.parseInt(senderID)) + "/spooky_month.gif", "1.0");
+        peer.restore(peerStorage.getFilesDirectory(Integer.parseInt(senderID)) + "/spooky_month.gif");
 
     }
 }

@@ -28,10 +28,7 @@ public class ChunkFileInfos {
             chunkInfos.put(fileID, new ChunkFileInfo());
             a = chunkInfos.get(fileID);
         }
-        System.out.println("Add chunk:");
-        for (String currentID : chunkInfos.keySet()) {
-            System.out.println("Current ID: " + currentID);
-        }
+
         if(!a.chunkExists(chunk.getChunkNo())){
             a.chunks.add(chunk);
             return true;
@@ -40,10 +37,6 @@ public class ChunkFileInfos {
     }
 
     public void incrementChunkPerceivedReplicationDegree(String fileID, int chunkNo) {
-        System.out.println("Increment:");
-        for (String currentID : chunkInfos.keySet()) {
-            System.out.println("Current ID: " + currentID);
-        }
         ChunkFileInfo chunkFileInfo = chunkInfos.get(fileID);
         if (chunkFileInfo == null) {
             return;

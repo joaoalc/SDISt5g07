@@ -12,9 +12,7 @@ public class Main {
 
 
     public static void main(String[] args) throws IOException {
-        //String senderID = args[0];
-        String senderID = "1";
-
+        String senderID = args[0];
 
         MulticastThread MC = new MulticastThread("230.0.0.0", 4446, senderID, "MC");
         MulticastThread MDB = new MulticastThread("230.0.0.1", 4446, senderID, "MDB");
@@ -22,7 +20,7 @@ public class Main {
 
         PeerStorage peerStorage = new PeerStorage(Integer.parseInt(senderID));
 
-        Peer peer = new Peer(MC, MDB, MDR, senderID, peerStorage);
+        Peer peer = new Peer("1.0", MC, MDB, MDR, senderID, peerStorage);
 
         MC.setChannelSockets(MC, MDB, MDR);
         MDB.setChannelSockets(MC, MDB, MDR);
