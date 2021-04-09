@@ -293,7 +293,6 @@ public class Peer implements IPeerRemote {
             IPeerRemote stub = (IPeerRemote) UnicastRemoteObject.exportObject(peer, 0);
 
             // Bind the remote object's stub in the registry
-            LocateRegistry.createRegistry();
             Registry registry = LocateRegistry.getRegistry();
             registry.bind(accessPoint, stub);
 
