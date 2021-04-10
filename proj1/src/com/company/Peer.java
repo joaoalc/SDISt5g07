@@ -17,6 +17,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.text.SimpleDateFormat;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 public class Peer implements IPeerRemote {
 
@@ -31,14 +32,16 @@ public class Peer implements IPeerRemote {
     private MulticastThread MC, MDB, MDR;
     public final String senderID;
     public PeerStorage peerStorage;
+    public ScheduledThreadPoolExecutor threadPool;
 
-    public Peer(String protocolVersion, MulticastThread MC, MulticastThread MDB, MulticastThread MDR, String senderID, PeerStorage peerStorage) throws IOException {
+    public Peer(String protocolVersion, MulticastThread MC, MulticastThread MDB, MulticastThread MDR, String senderID, PeerStorage peerStorage, ScheduledThreadPoolExecutor threadPool) throws IOException {
         this.protocolVersion = protocolVersion;
         this.MC = MC;
         this.MDB = MDB;
         this.MDR = MDR;
         this.senderID = senderID;
         this.peerStorage = peerStorage;
+        this.threadPool = threadPool;
         peerStorage.ReadInfoFromChunkData();
         peerStorage.ReadInfoFromFileData();
     }
@@ -285,8 +288,10 @@ public class Peer implements IPeerRemote {
 
         PeerStorage peerStorage = new PeerStorage(Integer.parseInt(senderID));
 
+        ScheduledThreadPoolExecutor threadPool = new ScheduledThreadPoolExecutor(16);
+
         try {
-            Peer peer = new Peer(protocolVersion, MC, MDB, MDR, senderID, peerStorage);
+            Peer peer = new Peer(protocolVersion, MC, MDB, MDR, senderID, peerStorage, threadPool);
             IPeerRemote stub = (IPeerRemote) UnicastRemoteObject.exportObject(peer, 0);
 
             // Bind the remote object's stub in the registry
@@ -301,9 +306,13 @@ public class Peer implements IPeerRemote {
             MDB.setPeer(peer);
             MDR.setPeer(peer);
 
-            MC.start();
+            /*MC.start();
             MDB.start();
-            MDR.start();
+            MDR.start();*/
+
+            threadPool.execute(MC);
+            threadPool.execute(MDB);
+            threadPool.execute(MDR);
 
             System.out.println("Peer ready");
 
