@@ -11,4 +11,5 @@ public interface IPeerRemote extends Remote {
     void restore(String path) throws IOException;
     void delete(String path) throws IOException;
     void reclaim(int space) throws RemoteException;
+    String state() throws RemoteException;
 }

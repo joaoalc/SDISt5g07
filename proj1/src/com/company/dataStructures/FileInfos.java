@@ -41,7 +41,7 @@ public class FileInfos {
 
     }
 
-    public void printValuesHumanReadable() {
+    public String getValuesHumanReadable() {
         String a = "";
         a += "This peer contains " + fileInfos.size() + " files\n\n";
         int fileNum = 0;
@@ -62,7 +62,32 @@ public class FileInfos {
                 a += "\n";
             }
         }
-        System.out.println(a);
+        return a;
+    }
+
+    public String getState() {
+        String result = "";
+        result += "This peer contains " + fileInfos.size() + " files\n";
+        int fileNum = 0;
+        for(FileInfo fInfo: fileInfos){
+            result += "File number " + fileNum + ": \n";
+            //(File path of when this version of the file was inserted, file could've been manually moved or overwritte, in which case it would not be there)
+            result += "File path: " + fInfo.filePath + "\n";
+            result += "File is: " + fInfo.unencryptedFileID + "\n";
+            result += "The file's ID is: " + fInfo.fileID + "\n";
+            //result += "The file's desired replication degree is: " + fInfo. + "\n";
+            result += "The file has a total of " + fInfo.usersBackingUp.size() + " chunks:\n";
+
+            for(int i = 0; i < fInfo.usersBackingUp.size(); i++){
+                result += "\t- Chunk number " + i + " has " + fInfo.usersBackingUp.get(i).size() + " users backing it up, whose Ids are:\n";
+            }
+        }
+        return result;
+    }
+
+    public void printValuesHumanReadable() {
+
+        System.out.println(getValuesHumanReadable());
         /*String result = infos.fileInfos.size() + "\n";
         for(FileInfo fInfo: infos.fileInfos){
             result += fInfo.unencryptedFileID + "\n" + fInfo.fileID + "\n" + fInfo.usersBackingUp.size() + "\n";
@@ -75,5 +100,4 @@ public class FileInfos {
             }
         }*/
     }
-
 }

@@ -1,8 +1,6 @@
 package com.company;
 
-import com.company.dataStructures.Chunk;
 import com.company.dataStructures.FileInfo;
-import com.company.dataStructures.FileInfos;
 import com.company.dataStructures.PeerStorage;
 import com.company.utils.StringVerification;
 
@@ -10,21 +8,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.attribute.FileOwnerAttributeView;
-import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Random;
 
 public class Peer implements IPeerRemote {
 
@@ -221,6 +213,11 @@ public class Peer implements IPeerRemote {
     @Override
     public void reclaim(int space) throws RemoteException {
         // TODO: implement this
+    }
+
+    @Override
+    public String state() throws RemoteException {
+        return peerStorage.getState();
     }
 
     public static void printUsage() {

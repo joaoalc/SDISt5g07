@@ -51,4 +51,12 @@ public class Client {
             e.printStackTrace();
         }
     }
+
+    public void state() {
+        try {
+            System.out.println(this.peer.state());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

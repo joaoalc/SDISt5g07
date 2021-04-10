@@ -60,7 +60,7 @@ public class ChunkFileInfos {
         return true;
     }
 
-    public void printValuesHumanReadable() {
+    public String getValuesHumanReadable() {
         String a = "";
         a += "This peer contains " + chunkInfos.size() + " files\n\n";
         int fileNum = 0;
@@ -73,6 +73,32 @@ public class ChunkFileInfos {
                 a += "Chunk number " + i + " is being backed up\n";
             }
         }
-        System.out.println(a);
+
+        return a;
+    }
+
+    public String getState() {
+        String result = "";
+        result += "This peer contains " + chunkInfos.size() + " files\n\n";
+        int fileNum = 0;
+        for(Map.Entry<String, ChunkFileInfo> set: chunkInfos.entrySet()){
+            result += "File number " + fileNum + ": \n";
+            //(File path of when this version of the file was inserted, file could've been manually moved or overwritte, in which case it would not be there)
+            result += "The file's ID is: " + set.getKey() + "\n";
+
+            result += "The file has " + set.getValue().chunks.size() + " chunks:";
+            for (Chunk chunk : set.getValue().chunks){
+                result += "\t- ID: " + chunk.getChunkNo();
+                result += "\t- Size: " + chunk.getSize();
+                result += "\t- Desired replication degree: " + chunk.getDesiredReplicationDegree();
+                result += "\t- Perceived replication degree: " + chunk.getPerceivedReplicationDegree();
+            }
+        }
+
+        return result;
+    }
+
+    public void printValuesHumanReadable() {
+        System.out.println(getValuesHumanReadable());
     }
 }

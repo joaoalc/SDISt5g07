@@ -95,6 +95,8 @@ public class TestApp {
                 printUsage();
                 System.exit(-1);
             }
+
+            new Client(peerAp).state();
         }
 
         else {

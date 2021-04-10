@@ -214,6 +214,15 @@ public class PeerStorage {
         }
     }
 
+    public String getState() {
+        String result = "";
+        result += this.infos.getState();
+        result += "\n";
+        result += this.chunkInfos.getState();
+
+        return result;
+    }
+
     /*public static void main(String[] args) {
         PeerStorage storage = new PeerStorage(35);
 
