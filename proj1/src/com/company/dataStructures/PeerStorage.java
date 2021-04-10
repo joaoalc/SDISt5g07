@@ -14,9 +14,9 @@ public class PeerStorage {
     public ChunkFileInfos chunkInfos;
 
     //Where you read/store files
-    public final String PEER_FILES_DIR = "files/files/peer-";
+    public final String PEER_FILES_DIR = "../../files/files/peer-";
     //Where you store chunks of a file
-    public final String PEER_CHUNKS_DIR = "files/chunks/peer-";
+    public final String PEER_CHUNKS_DIR = "../../files/chunks/peer-";
 
     //Filenames that contain the info of every file/chunk
     public final String PEER_FILES_INFO_NAME = "fileInfo.txt";

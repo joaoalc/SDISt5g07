@@ -294,7 +294,7 @@ public class Peer implements IPeerRemote {
 
             // Bind the remote object's stub in the registry
             Registry registry = LocateRegistry.getRegistry();
-            registry.bind(accessPoint, stub);
+            registry.rebind(accessPoint, stub);
 
             MC.setChannelSockets(MC, MDB, MDR);
             MDB.setChannelSockets(MC, MDB, MDR);
