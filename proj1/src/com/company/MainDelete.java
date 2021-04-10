@@ -31,6 +31,6 @@ public class MainDelete {
         MDB.start();
         MDR.start();
 
-        peer.delete(peerStorage.getFilesDirectory(Integer.parseInt(senderID)) + "/runnel_thino.png", "1.0");
+        peer.delete(peerStorage.getFilesDirectory(Integer.parseInt(senderID)) + "/spooky_month.gif", "1.0");
     }
 }

@@ -72,7 +72,7 @@ public class Peer implements IPeerRemote {
         //FileInfo currentFileInfo = fileInfos.addFile(new FileInfo(path, unencryptedFileID));
 
         int numberOfChunks = (int) (file.length() / 64000) + 1;
-        FileInfo currentFileInfo = this.peerStorage.infos.addFile(new FileInfo(path, unencryptedFileID, numberOfChunks));
+        FileInfo currentFileInfo = this.peerStorage.infos.addFile(new FileInfo(path, unencryptedFileID, numberOfChunks, replication));
 
 
 
@@ -227,11 +227,12 @@ public class Peer implements IPeerRemote {
             e.printStackTrace();
         }
 
+        removeMultiples(fileID, path);
 
     }
 
     @Override
-    public void delete(String path, String version) throws IOException, NoSuchAlgorithmException {
+    public void delete(String path, String version) throws IOException{
         // TODO: implement this
         System.setProperty("file.encoding", "US-ASCII");
         File file = new File(path);
@@ -251,7 +252,13 @@ public class Peer implements IPeerRemote {
         String unencryptedFileID = file.getName() + date + owner;
 
         int numberOfChunks = (int) (file.length() / 64000) + 1;
-        FileInfo fileInfo = new FileInfo(path, unencryptedFileID, numberOfChunks);
+
+
+        FileInfo fileInfo = peerStorage.infos.findByFilePath(path);//new FileInfo(path, unencryptedFileID, numberOfChunks);
+        if(fileInfo == null){
+            System.out.println("File not found in metafile");
+            return;
+        }
         String headerString = version + " " + "DELETE" + " " + senderID + " " + fileInfo.fileID;
         byte[] message = new byte[headerString.length() + 4];
         System.arraycopy(headerString.getBytes(StandardCharsets.US_ASCII), 0, message, 0, headerString.length());
@@ -261,7 +268,7 @@ public class Peer implements IPeerRemote {
         message[headerString.length() + 2] = 0x0D;
         message[headerString.length() + 3] = 0x0A;
 
-        MDB.sendMessage(message, message.length);
+        MC.sendMessage(message, message.length);
 
 
         peerStorage.infos.fileInfos.remove(peerStorage.infos.findByFilePath(path));
@@ -404,4 +411,31 @@ public class Peer implements IPeerRemote {
         }
         this.peerStorage.infos.findByFileID(fileID).addUser(userID, chunkNo);
     }
+
+    public boolean checkForDuplicates(String fileID, String filePath, String result){
+        FileInfo file = peerStorage.infos.findByFilePath(filePath);
+        if(file.fileID != fileID){
+            result = file.fileID;
+            return true;
+        }
+        result = "";
+        return false;
+    }
+
+    public boolean removeMultiples(String fileID, String filePath) throws IOException{
+        FileInfo file = peerStorage.infos.findByFilePath(filePath);
+        int desiredReplicationDegree = file.desiredReplicationDegree;
+        if(file.fileID != fileID){
+            System.out.println("This file's backups are outdated! Deleting old backups and backing up again");
+            delete(filePath, "1.0");
+            backup(filePath, desiredReplicationDegree, "1.0");
+            return true;
+        }
+        else{
+            return false;
+        }
+
+
+    }
+
 }

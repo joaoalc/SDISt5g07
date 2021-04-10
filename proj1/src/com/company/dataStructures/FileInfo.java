@@ -11,15 +11,17 @@ public class FileInfo {
     public String fileID;
     public String unencryptedFileID;
     public int numberOfChunks;
+    public int desiredReplicationDegree;
     //Indexes are chunk numbers; Each string is a userID; Each Array is a list of users in the chunk
     public ArrayList<ArrayList<String>> usersBackingUp;
 
-    public FileInfo(String filePath, String unencryptedFileID, String fileID, ArrayList<ArrayList<String>> usersBackingUp, int numberOfChunks){
+    public FileInfo(String filePath, String unencryptedFileID, String fileID, ArrayList<ArrayList<String>> usersBackingUp, int numberOfChunks, int desiredReplicationDegree){
         this.filePath = filePath;
         this.unencryptedFileID = unencryptedFileID;
         this.fileID = fileID;
         this.usersBackingUp = usersBackingUp;
         this.numberOfChunks = numberOfChunks;
+        this.desiredReplicationDegree = desiredReplicationDegree;
     }
 /*
     public FileInfo(String filePath, String unencryptedFileID, String fileID) {
@@ -36,7 +38,7 @@ public class FileInfo {
         this.usersBackingUp = usersBackingUp;
     }*/
 
-    public FileInfo(String filePath, String unencryptedFileID, int numberOfChunks) {
+    public FileInfo(String filePath, String unencryptedFileID, int numberOfChunks, int desiredReplicationDegree) {
         try {
             this.filePath = filePath;
             this.unencryptedFileID = unencryptedFileID;
@@ -44,6 +46,7 @@ public class FileInfo {
             System.out.println();
             this.usersBackingUp = new ArrayList<>();
             this.numberOfChunks = numberOfChunks;
+            this.desiredReplicationDegree = desiredReplicationDegree;
         }
         catch(NoSuchAlgorithmException e){
             System.out.println("SHA256 no longer exists, appearantly.");

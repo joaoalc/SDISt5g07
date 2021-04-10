@@ -14,7 +14,7 @@ public class PeerStorage {
     public ChunkFileInfos chunkInfos;
     public long total_space;
 
-    public final long DEFAULT_TOTAL_SPACE = 1000000;
+    public final long DEFAULT_TOTAL_SPACE = 10000000;
 
     //Where you read/store files
     public final String PEER_FILES_DIR = "files/files/peer-"; //Inner paths are hard coded in a function; DO NOT CHANGE
@@ -106,8 +106,11 @@ public class PeerStorage {
             String filePath = scanner.nextLine();
             String unencryptedFileID = scanner.nextLine();
             String fileID = scanner.nextLine();
-            int numberOfChunks = Integer.parseInt(scanner.nextLine());
-            FileInfo info = new FileInfo(filePath, unencryptedFileID, numberOfChunks);
+            String numChunksReplicationDegreeLine = scanner.nextLine();
+            String[] args = numChunksReplicationDegreeLine.split(" ");
+            int numberOfChunks = Integer.parseInt(args[0]);//Integer.parseInt(scanner.nextLine());
+            int desiredReplication = Integer.parseInt(args[1]);
+            FileInfo info = new FileInfo(filePath, unencryptedFileID, numberOfChunks, desiredReplication);
             if(info.fileID.compareTo(fileID) != 0){
                 System.out.println("File ID from file is incorrect, this is likely an error, so the id from the file will be ignored.");
             }
@@ -144,7 +147,7 @@ public class PeerStorage {
         //TODO: Convert to toString method override in PeerStorage
         String result = infos.fileInfos.size() + "\n";
         for(FileInfo fInfo: infos.fileInfos){
-            result += fInfo.filePath + "\n" + fInfo.unencryptedFileID + "\n" + fInfo.fileID + "\n" + fInfo.numberOfChunks + "\n";
+            result += fInfo.filePath + "\n" + fInfo.unencryptedFileID + "\n" + fInfo.fileID + "\n" + fInfo.numberOfChunks + " " + fInfo.desiredReplicationDegree + "\n";
             for(int i = 0; i < fInfo.usersBackingUp.size(); i++){
                 result += i + " " + fInfo.usersBackingUp.get(i).size();
                 for(int j = 0; j < fInfo.usersBackingUp.get(i).size(); j++){

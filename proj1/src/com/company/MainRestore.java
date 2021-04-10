@@ -31,6 +31,6 @@ public class MainRestore {
         MDB.start();
         MDR.start();
 
-        peer.restore(peerStorage.getFilesDirectory(Integer.parseInt(senderID)) + "/runnel_thino.png", "1.0");
+        peer.restore(peerStorage.getFilesDirectory(Integer.parseInt(senderID)) + "/spooky_month.gif", "1.0");
     }
 }
