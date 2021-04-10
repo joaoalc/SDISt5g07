@@ -277,7 +277,7 @@ public class Peer implements IPeerRemote {
     public void reclaim(long space, String version) throws IOException {
         ArrayList<Chunk> chunks = new ArrayList<>();
         if (version == "1.0"){
-            // TODO: implement this
+            peerStorage.total_space = space;
             long spaceOccupied = 0;
             for (Map.Entry<String, ChunkFileInfo> file : peerStorage.chunkInfos.chunkInfos.entrySet()) {
                 for (Chunk chunk : file.getValue().chunks) {
@@ -397,20 +397,11 @@ public class Peer implements IPeerRemote {
     }
 
     public void addStoredPeer(String fileID, String userID, int chunkNo) {
-
-        /*FileInfo a = fileInfos.findByFileID(fileID);
-        if(a == null){
-            System.out.println("No file found.");
-            return;
-        }
-        fileInfos.findByFileID(fileID).addUser(userID, chunkNo);*/
-
         FileInfo a = this.peerStorage.infos.findByFileID(fileID);
         if(a == null){
-            System.out.println("No file found.");
+            //System.out.println("No file found.");
             return;
         }
         this.peerStorage.infos.findByFileID(fileID).addUser(userID, chunkNo);
-        //this.peerStorage.chunkInfos.addChunk(fileID, new Chunk())
     }
 }

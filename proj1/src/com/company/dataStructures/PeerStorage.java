@@ -12,7 +12,9 @@ import java.util.Scanner;
 public class PeerStorage {
     public FileInfos infos;
     public ChunkFileInfos chunkInfos;
-    public int total_space;
+    public long total_space;
+
+    public final long DEFAULT_TOTAL_SPACE = 1000000;
 
     //Where you read/store files
     public final String PEER_FILES_DIR = "files/files/peer-"; //Inner paths are hard coded in a function; DO NOT CHANGE
@@ -80,7 +82,7 @@ public class PeerStorage {
         }
         else{
             FileOutputStream fileOutputStream = new FileOutputStream(file);
-            fileOutputStream.write("0".getBytes(StandardCharsets.US_ASCII));
+            fileOutputStream.write(("0 " + DEFAULT_TOTAL_SPACE).getBytes(StandardCharsets.US_ASCII));
             return;
         }
 
@@ -96,6 +98,7 @@ public class PeerStorage {
 
         infos = new FileInfos();
         Scanner scanner = new Scanner(filedata);
+
         int num_files = Integer.parseInt(scanner.nextLine());
 
         //Read and insert info from file string
@@ -173,7 +176,7 @@ public class PeerStorage {
         }
         else{
             FileOutputStream fileOutputStream = new FileOutputStream(file);
-            fileOutputStream.write("0".getBytes(StandardCharsets.US_ASCII));
+            fileOutputStream.write("0 ".getBytes(StandardCharsets.US_ASCII));
             return;
         }
 
@@ -187,7 +190,12 @@ public class PeerStorage {
 
         chunkInfos = new ChunkFileInfos();
         Scanner scanner = new Scanner(filedata);
-        int num_files = Integer.parseInt(scanner.nextLine());
+
+        String firstLine = scanner.nextLine();
+        String[] firstLineArgs = firstLine.split(" ");
+        int num_files = Integer.parseInt(firstLineArgs[0]);
+        total_space = Long.parseLong(firstLineArgs[1]);
+
         for(int i = 0; i < num_files; i++){
             String line = scanner.nextLine();
             String[] args = line.split(" ");
@@ -209,7 +217,7 @@ public class PeerStorage {
             System.out.println("No file data found for this peer, creating new file.");
 
         }
-        String result = chunkInfos.chunkInfos.size() + "\n";
+        String result = chunkInfos.chunkInfos.size() + " " + total_space + "\n";
         int fileNum = 0;
         for(Map.Entry<String, ChunkFileInfo> set: chunkInfos.chunkInfos.entrySet()){
             //(File path of when this version of the file was inserted, file could've been manually moved or overwritte, in which case it would not be there)
@@ -230,6 +238,16 @@ public class PeerStorage {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public long GetOccupiedSpace() {
+        long result = 0;
+        for(Map.Entry<String, ChunkFileInfo> entry:  chunkInfos.chunkInfos.entrySet()){
+            for(Chunk chunk: entry.getValue().chunks){
+                result += chunk.getSize();
+            }
+        }
+        return result;
     }
 
     /*public static void main(String[] args) {

@@ -77,6 +77,13 @@ public class MulticastResponseHandler extends Thread{
 
                 byte[] body = MessageParser.getBody(request);
                 System.out.println("Body size: " + body.length);
+
+                //Check if it can store this file
+                if(body.length + peerStorage.GetOccupiedSpace() > peerStorage.total_space){
+                    System.out.println("Not enough space for chunk " + arguments.get(4) + " of file with ID " + arguments.get(3));
+                    return;
+                }
+
                 ChunkWritter.WriteChunk(body, path + "/" + arguments.get(3) + "-" + arguments.get(4));
                 peerStorage.chunkInfos.addChunk(arguments.get(3), new Chunk(Integer.parseInt(arguments.get(4)), body.length, Integer.parseInt(arguments.get(5)), 1, arguments.get(3)));
                 peerStorage.WriteInfoToChunkData();

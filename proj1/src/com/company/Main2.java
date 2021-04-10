@@ -33,7 +33,7 @@ public class Main2 {
         MDB.start();
         MDR.start();
 
-        System.out.println(peerStorage.getFilesDirectory(Integer.parseInt(senderID)) + "/64000.txt");
-        peer.backup(peerStorage.getFilesDirectory(Integer.parseInt(senderID)) + "/64000.txt", 2, "1.0");
+        System.out.println(peerStorage.getFilesDirectory(Integer.parseInt(senderID)) + "/a.gif");
+        peer.backup(peerStorage.getFilesDirectory(Integer.parseInt(senderID)) + "/a.gif", 3, "1.0");
     }
 }
