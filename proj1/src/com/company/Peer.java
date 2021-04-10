@@ -72,7 +72,15 @@ public class Peer implements IPeerRemote {
         //FileInfo currentFileInfo = fileInfos.addFile(new FileInfo(path, unencryptedFileID));
 
         int numberOfChunks = (int) (file.length() / 64000) + 1;
-        FileInfo currentFileInfo = this.peerStorage.infos.addFile(new FileInfo(path, unencryptedFileID, numberOfChunks, replication));
+
+
+        FileInfo currentFileInfo = new FileInfo(path, unencryptedFileID, numberOfChunks, replication);
+
+        if(removeMultiples(currentFileInfo.fileID, path, replication)){
+            System.out.println("There was an outdated version of this file, it has been deleted and replaced with the newest version.");
+            return;
+        }
+        currentFileInfo = this.peerStorage.infos.addFile(currentFileInfo);
 
 
 
@@ -227,7 +235,17 @@ public class Peer implements IPeerRemote {
             e.printStackTrace();
         }
 
-        removeMultiples(fileID, path);
+
+        File file = new File(path);
+        String date = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(file.lastModified()).toString();
+
+        String owner = Files.getFileAttributeView(Paths.get(path), FileOwnerAttributeView.class).getOwner().toString();
+        String unencryptedFileID = file.getName() + date + owner;
+        int numberOfChunks = (int) (file.length() / 64000) + 1;
+
+        FileInfo fileInfoNew = new FileInfo(path, unencryptedFileID, numberOfChunks, fileInfo.desiredReplicationDegree);
+
+        removeMultiples(fileInfoNew.fileID, path);
 
     }
 
@@ -412,19 +430,11 @@ public class Peer implements IPeerRemote {
         this.peerStorage.infos.findByFileID(fileID).addUser(userID, chunkNo);
     }
 
-    public boolean checkForDuplicates(String fileID, String filePath, String result){
+    public boolean removeMultiples(String fileID, String filePath, int desiredReplicationDegree) throws IOException{
         FileInfo file = peerStorage.infos.findByFilePath(filePath);
-        if(file.fileID != fileID){
-            result = file.fileID;
-            return true;
+        if(file == null){
+            return false;
         }
-        result = "";
-        return false;
-    }
-
-    public boolean removeMultiples(String fileID, String filePath) throws IOException{
-        FileInfo file = peerStorage.infos.findByFilePath(filePath);
-        int desiredReplicationDegree = file.desiredReplicationDegree;
         if(file.fileID != fileID){
             System.out.println("This file's backups are outdated! Deleting old backups and backing up again");
             delete(filePath, "1.0");
@@ -434,8 +444,23 @@ public class Peer implements IPeerRemote {
         else{
             return false;
         }
+    }
 
-
+    public boolean removeMultiples(String fileID, String filePath) throws IOException{
+        FileInfo file = peerStorage.infos.findByFilePath(filePath);
+        int desiredReplicationDegree = file.desiredReplicationDegree;
+        if(file == null){
+            return false;
+        }
+        if(file.fileID != fileID){
+            System.out.println("This file's backups are outdated! Deleting old backups and backing up again");
+            delete(filePath, "1.0");
+            backup(filePath, desiredReplicationDegree, "1.0");
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 
 }
