@@ -3,10 +3,7 @@ package com.company.MulticastHandler;
 import com.company.Message;
 import com.company.MulticastThread;
 import com.company.Peer;
-import com.company.dataStructures.Chunk;
-import com.company.dataStructures.ChunkFileInfo;
-import com.company.dataStructures.ChunkFileInfos;
-import com.company.dataStructures.PeerStorage;
+import com.company.dataStructures.*;
 import com.company.utils.ChunkWritter;
 import com.company.utils.MessageCreator;
 import com.company.utils.MessageParser;
@@ -200,6 +197,17 @@ public class MulticastResponseHandler extends Thread{
             }
             else if(arguments.get(1).compareTo("REMOVED") == 0 && this.callerChannelType == "MC"){
                 //<Version> REMOVED <SenderId> <FileId> <ChunkNo>
+
+                //Find file info with this chunk; remove user backing up from it
+                FileInfo fInfo = MC.peer.peerStorage.infos.findByFileID(arguments.get(3));
+                if(fInfo != null){
+                    if(fInfo.usersBackingUp.size() <= Integer.parseInt(arguments.get(4))){
+                        return;
+                    }
+                    fInfo.usersBackingUp.get(Integer.parseInt(arguments.get(4))).remove(arguments.get(2));
+                    MC.peer.peerStorage.WriteInfoToFileData();
+                }
+
                 ChunkFileInfos CFIS = MC.peer.peerStorage.chunkInfos;
                 ChunkFileInfo CFI = CFIS.chunkInfos.get(arguments.get(3));
                 if(CFI != null){
