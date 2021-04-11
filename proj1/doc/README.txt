@@ -24,3 +24,5 @@ opnd_2 - This operand is an integer that specifies the desired replication degre
 We also have some tests scripts prepared to test de application.
 For that you can run two peers: ./peerexample1.sh and ./peerexample2.sh
 Then you can run any of the following scripts: ./testbackup.sh or ./testdelete.sh or ./testrestore.sh or ./teststate.sh
+
+To terminate the application press ctrl-c in every peer process
