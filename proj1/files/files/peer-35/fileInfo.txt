@@ -1,7 +1,5 @@
-<<<<<<< HEAD
 1
 files/files/peer-35/spooky_month.gif
-<<<<<<< HEAD
 spooky_month.gif10/04/2021 19:53:08LAPTOP-KBILTRQJ\joaoa (User)
 4f0c0ab4bdbb23692e535f042bb70570b457f308d691c51830879bfc61126d4d
 18 2
@@ -23,29 +21,4 @@ spooky_month.gif10/04/2021 19:53:08LAPTOP-KBILTRQJ\joaoa (User)
 15 2 2 1
 16 2 1 2
 17 2 2 1
-=======
-0
->>>>>>> RMI
-=======
-spooky_month.gif11/04/2021 16:10:18LAPTOP-KBILTRQJ\joaoa (User)
-43d6278427d32095035ed45b8339cb000ff52f539fdb2f69fbb8aa4ccae7d2e1
-18 1
-0 1 3
-1 1 3
-2 1 3
-3 1 3
-4 1 3
-5 1 3
-6 1 3
-7 1 3
-8 1 3
-9 1 3
-10 1 3
-11 1 3
-12 1 3
-13 1 3
-14 1 3
-15 1 3
-16 1 3
-17 1 3
->>>>>>> e7a516c19c2b7bf2ea2c66225659d436bfe1db94
+
