@@ -262,6 +262,8 @@ public class PeerStorage {
         result += this.infos.getState();
         result += "\n";
         result += this.chunkInfos.getState();
+        result += "\n";
+        result += "Storage capacity: " + total_space;
 
         return result;
     }
