@@ -78,6 +78,7 @@ public class Peer implements IPeerRemote {
 
         if(removeMultiples(currentFileInfo.fileID, path, replication)){
             System.out.println("There was an outdated version of this file, it has been deleted and replaced with the newest version.");
+            backup(path, replication);
             return;
         }
         currentFileInfo = this.peerStorage.infos.addFile(currentFileInfo);
@@ -111,7 +112,6 @@ public class Peer implements IPeerRemote {
             currentFileInfo.addChunkToArray(chunkNo);
             chunkBackupProtocol(currentMessage, chunkNo, numBytes + 4 + headerString.length(), replication, path);
 
-
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
@@ -119,6 +119,7 @@ public class Peer implements IPeerRemote {
             }
             chunkNo++;
         }
+        objReader.close();
 
         this.peerStorage.WriteInfoToFileData();
         this.peerStorage.infos.printValuesHumanReadable();
@@ -199,6 +200,10 @@ public class Peer implements IPeerRemote {
     public void restore(String path) throws IOException {
 
         FileInfo fileInfo = peerStorage.infos.findByFilePath(path);
+        if(fileInfo.usersBackingUp.size() != fileInfo.numberOfChunks){
+            System.out.println("Some error happened; the file in storage is missing information on at least one chunk; cannot restore file");
+            return;
+        }
         if(fileInfo == null){
             System.out.println("File not found!");
             return;
@@ -329,6 +334,7 @@ public class Peer implements IPeerRemote {
                     message[headerString.length() + 3] = 0x0A;
                     File file = new File(peerStorage.getChunksDirectory(Integer.parseInt(senderID)) + "/" + fileID + "-" + chunkNo);
                     Files.deleteIfExists(file.toPath());
+                    peerStorage.chunkInfos.removeEmptyFiles();
                     peerStorage.WriteInfoToChunkData();
                     MC.sendMessage(message, message.length);
                     System.out.println("Number of chunks: " + chunks.size());
@@ -352,6 +358,7 @@ public class Peer implements IPeerRemote {
                 message[headerString.length() + 3] = 0x0A;
                 File file = new File(peerStorage.getChunksDirectory(Integer.parseInt(senderID)) + "/" + fileID + "-" + chunkNo);
                 Files.deleteIfExists(file.toPath());
+                peerStorage.chunkInfos.removeEmptyFiles();
                 peerStorage.WriteInfoToChunkData();
                 MC.sendMessage(message, message.length);
                 try {
@@ -361,6 +368,8 @@ public class Peer implements IPeerRemote {
                 }
             }
         }
+        peerStorage.chunkInfos.removeEmptyFiles();
+        peerStorage.WriteInfoToChunkData();
     }
 
     @Override
@@ -477,13 +486,20 @@ public class Peer implements IPeerRemote {
 
     public boolean removeMultiples(String fileID, String filePath, int desiredReplicationDegree) throws IOException{
         FileInfo file = peerStorage.infos.findByFilePath(filePath);
+        System.out.println("New file ID: " + fileID);
         if(file == null){
             return false;
         }
-        if(file.fileID != fileID){
+        System.out.println("Old file ID: " + file.fileID);
+        if(file.fileID.compareTo(fileID) != 0){
             System.out.println("This file's backups are outdated! Deleting old backups and backing up again");
             delete(filePath);
             backup(filePath, desiredReplicationDegree);
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             return true;
         }
         else{

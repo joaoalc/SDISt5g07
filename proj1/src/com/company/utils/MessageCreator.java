@@ -18,7 +18,7 @@ public class MessageCreator {
         if(numBytes != file.length()){
             System.out.println("File size different than file size?");
         }
-
+        objReader.close();
         return result;
     }
 }

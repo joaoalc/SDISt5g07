@@ -207,7 +207,11 @@ public class PeerStorage {
             for(int j = 0; j < Integer.parseInt(args[1]); j++){
                 String line2 = scanner.nextLine();
                 String[] args2 = line2.split(" ");
-                info.chunks.add(new Chunk(Integer.parseInt(args2[0]), Integer.parseInt(args2[1]), Integer.parseInt(args2[2]), Integer.parseInt(args2[3]), args[0]));
+                ArrayList<Integer> peersBackingUp = new ArrayList<>();
+                for(int l = 4; l < args2.length; l++){
+                    peersBackingUp.add(l);
+                }
+                info.chunks.add(new Chunk(Integer.parseInt(args2[0]), Integer.parseInt(args2[1]), Integer.parseInt(args2[2]), peersBackingUp, args[0]));
             }
         }
         chunkInfos.printValuesHumanReadable();
