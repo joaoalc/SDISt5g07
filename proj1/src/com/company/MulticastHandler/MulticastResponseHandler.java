@@ -137,7 +137,8 @@ public class MulticastResponseHandler extends Thread{
                     MC.restorePeers.put(arguments.get(3) + "-" + arguments.get(4), this);
                     restoreInfo = new RestoreInfo(arguments.get(3), arguments.get(4));
 
-                    if(info.chunks.get(Integer.parseInt(arguments.get(4))) != null){
+
+                    if(info.getChunk(Integer.parseInt(arguments.get(4))) != null){
                         String response = "1.0" + " " + "CHUNK" + " " + senderID + " " + arguments.get(3) + " " + arguments.get(4);
                         byte[] header = new byte[response.length() + 4];
                         System.arraycopy(response.getBytes(StandardCharsets.US_ASCII), 0, header, 0, response.length());
@@ -178,6 +179,7 @@ public class MulticastResponseHandler extends Thread{
 
 
                     }
+
                 }
             }
             else if(arguments.get(1).compareTo("CHUNK") == 0 && this.callerChannelType == "MDR") {
