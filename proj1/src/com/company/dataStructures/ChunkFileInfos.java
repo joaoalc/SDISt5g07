@@ -41,7 +41,7 @@ public class ChunkFileInfos {
         return false;
     }
 
-    public void incrementChunkPerceivedReplicationDegree(String fileID, int chunkNo, PeerStorage peerStorage) {
+    public void incrementChunkPerceivedReplicationDegree(String fileID, int chunkNo, PeerStorage peerStorage, int peerNum) {
         System.out.println("Incremented perceived replication degree of file with id and chunk number " + fileID + " " + chunkNo);
         for (String currentID : chunkInfos.keySet()) {
             System.out.println("Current ID: " + currentID);
@@ -52,7 +52,7 @@ public class ChunkFileInfos {
         }
 
         if (chunkFileInfo.chunkExists(chunkNo)) {
-            chunkFileInfo.getChunk(chunkNo).incrementPerceivedReplicationDegree(peerStorage);
+            chunkFileInfo.getChunk(chunkNo).incrementPerceivedReplicationDegree(peerStorage, peerNum);
         }
     }
     
@@ -83,5 +83,13 @@ public class ChunkFileInfos {
             }
         }
         System.out.println(a);
+    }
+
+    public void removeEmptyFiles(){
+        for (Map.Entry<String, ChunkFileInfo> set : chunkInfos.entrySet()) {
+            if(set.getValue().chunks.size() == 0){
+                chunkInfos.remove(set.getKey(), set.getValue());
+            }
+        }
     }
 }

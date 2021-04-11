@@ -85,7 +85,9 @@ public class MulticastResponseHandler extends Thread{
                 }
 
                 ChunkWritter.WriteChunk(body, path + "/" + arguments.get(3) + "-" + arguments.get(4));
-                peerStorage.chunkInfos.addChunk(arguments.get(3), new Chunk(Integer.parseInt(arguments.get(4)), body.length, Integer.parseInt(arguments.get(5)), 1, arguments.get(3)));
+                ArrayList<Integer> usersBackingUp = new ArrayList<Integer>();
+                usersBackingUp.add(Integer.valueOf(senderID));
+                peerStorage.chunkInfos.addChunk(arguments.get(3), new Chunk(Integer.parseInt(arguments.get(4)), body.length, Integer.parseInt(arguments.get(5)), usersBackingUp, arguments.get(3)));
                 peerStorage.WriteInfoToChunkData();
                 System.out.println("Sending now!");
                 try {
@@ -110,7 +112,7 @@ public class MulticastResponseHandler extends Thread{
             else if(arguments.get(1).compareTo("STORED") == 0 && this.callerChannelType == "MC"){
                 //Version STORED SenderID FileID ChunkNo
                 MC.peer.addStoredPeer(arguments.get(3), arguments.get(2), Integer.parseInt(arguments.get(4)));
-                peerStorage.chunkInfos.incrementChunkPerceivedReplicationDegree(arguments.get(3), Integer.parseInt(arguments.get(4)), peerStorage);
+                peerStorage.chunkInfos.incrementChunkPerceivedReplicationDegree(arguments.get(3), Integer.parseInt(arguments.get(4)), peerStorage, Integer.parseInt(arguments.get(2)));
             }
             else if(arguments.get(1).compareTo("DELETE") == 0 && this.callerChannelType == "MC"){
                 try {
@@ -131,11 +133,9 @@ public class MulticastResponseHandler extends Thread{
                 //<Version> GETCHUNK <SenderID> <FileID> <ChunkNo>
                 ChunkFileInfo info = peerStorage.chunkInfos.chunkInfos.get(arguments.get(3));
                 if (info != null) {
-
                     //Add to file queue
                     MC.restorePeers.put(arguments.get(3) + "-" + arguments.get(4), this);
                     restoreInfo = new RestoreInfo(arguments.get(3), arguments.get(4));
-
 
                     if(info.chunks.get(Integer.parseInt(arguments.get(4))) != null){
                         String response = "1.0" + " " + "CHUNK" + " " + senderID + " " + arguments.get(3) + " " + arguments.get(4);
@@ -203,9 +203,9 @@ public class MulticastResponseHandler extends Thread{
                 if(CFI != null){
                     Chunk chunk = CFI.chunks.get(Integer.parseInt(arguments.get(4)));
                     if(chunk != null){
-                        chunk.decrementPerceivedReplicationDegree(MC.peer.peerStorage);
+                        chunk.decrementPerceivedReplicationDegree(MC.peer.peerStorage, Integer.parseInt(arguments.get(2)));
                         if(chunk.getPerceivedReplicationDegree() == 0){
-                            chunk.incrementPerceivedReplicationDegree(MC.peer.peerStorage);
+                            chunk.incrementPerceivedReplicationDegree(MC.peer.peerStorage, Integer.parseInt(arguments.get(2)));
                         }
                         if(chunk.getPerceivedReplicationDegree() < chunk.getDesiredReplicationDegree()){
                             RemoveInfo removeInfo = new RemoveInfo(arguments.get(3), arguments.get(4), this);
