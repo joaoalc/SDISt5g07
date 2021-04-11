@@ -7,6 +7,7 @@ import com.company.utils.ChunkWritter;
 
 import java.io.*;
 import java.net.MulticastSocket;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 public class Main {
 
@@ -21,7 +22,9 @@ public class Main {
 
         PeerStorage peerStorage = new PeerStorage(Integer.parseInt(senderID));
 
-        Peer peer = new Peer(MC, MDB, MDR, senderID, peerStorage);
+        ScheduledThreadPoolExecutor threadPool = new ScheduledThreadPoolExecutor(16);
+
+        Peer peer = new Peer("1.0", MC, MDB, MDR, senderID, peerStorage, threadPool);
 
         MC.setChannelSockets(MC, MDB, MDR);
         MDB.setChannelSockets(MC, MDB, MDR);
@@ -31,8 +34,12 @@ public class Main {
         MDB.setPeer(peer);
         MDR.setPeer(peer);
 
-        MC.start();
+        /*MC.start();
         MDB.start();
-        MDR.start();
+        MDR.start();*/
+
+        threadPool.execute(MC);
+        threadPool.execute(MDB);
+        threadPool.execute(MDR);
     }
 }

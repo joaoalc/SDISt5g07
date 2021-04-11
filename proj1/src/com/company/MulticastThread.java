@@ -89,7 +89,9 @@ public class MulticastThread extends Thread{
                 }
                 System.out.println();
                 MulticastResponseHandler packetHandler = new MulticastResponseHandler(senderID, packetData, MC, MDB, MDR, peer.peerStorage, channelType);
-                packetHandler.start();
+
+                //packetHandler.start();
+                this.peer.threadPool.execute(packetHandler);
             }
 
         } catch (UnknownHostException e) {

@@ -4,6 +4,7 @@ import com.company.dataStructures.PeerStorage;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 public class MainRestore {
 
@@ -16,7 +17,9 @@ public class MainRestore {
 
         PeerStorage peerStorage = new PeerStorage(Integer.parseInt(senderID));
 
-        Peer peer = new Peer(MC, MDB, MDR, senderID, peerStorage);
+        ScheduledThreadPoolExecutor threadPool = new ScheduledThreadPoolExecutor(16);
+
+        Peer peer = new Peer("1.0", MC, MDB, MDR, senderID, peerStorage, threadPool);
 
         MC.setChannelSockets(MC, MDB, MDR);
         MDB.setChannelSockets(MC, MDB, MDR);
@@ -27,10 +30,14 @@ public class MainRestore {
         MDR.setPeer(peer);
 
 
-        MC.start();
+        /*MC.start();
         MDB.start();
-        MDR.start();
+        MDR.start();*/
 
-        peer.restore(peerStorage.getFilesDirectory(Integer.parseInt(senderID)) + "/spooky_month.gif", "1.0");
+        threadPool.execute(MC);
+        threadPool.execute(MDB);
+        threadPool.execute(MDR);
+
+        peer.restore(peerStorage.getFilesDirectory(Integer.parseInt(senderID)) + "/spooky_month.gif");
     }
 }

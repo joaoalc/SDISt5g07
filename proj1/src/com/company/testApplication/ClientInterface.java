@@ -16,7 +16,7 @@ public class ClientInterface {
 
     public void Option(int number){
         if(number == 1){
-            Boolean valid_path_and_replication = false;
+            boolean valid_path_and_replication = false;
             while(!valid_path_and_replication) {
                 System.out.println("Insert your desired file path. Warning: This is the path you will have to specify when deleting a file.");
                 String path = inputScanner.nextLine();
@@ -59,12 +59,12 @@ public class ClientInterface {
 
 
         int number;
-        while(true) {
+        do {
             number = StringVerification.verifyPositiveIntRange(inputScanner.nextLine(), 1, 5);
-            if(number != -1){
-                break;
+            if (number == -1) {
+                System.out.println("Invalid input!");
             }
-        }
+        } while (number == -1);
         Option(number);
     }
 

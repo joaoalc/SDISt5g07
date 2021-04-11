@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 public class Main2 {
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
@@ -18,7 +19,9 @@ public class Main2 {
 
         PeerStorage peerStorage = new PeerStorage(Integer.parseInt(senderID));
 
-        Peer peer = new Peer(MC, MDB, MDR, senderID, peerStorage);
+        ScheduledThreadPoolExecutor threadPool = new ScheduledThreadPoolExecutor(16);
+
+        Peer peer = new Peer("1.0", MC, MDB, MDR, senderID, peerStorage, threadPool);
 
         MC.setChannelSockets(MC, MDB, MDR);
         MDB.setChannelSockets(MC, MDB, MDR);
@@ -29,11 +32,15 @@ public class Main2 {
         MDR.setPeer(peer);
 
 
-        MC.start();
+        /*MC.start();
         MDB.start();
-        MDR.start();
+        MDR.start();*/
+
+        threadPool.execute(MC);
+        threadPool.execute(MDB);
+        threadPool.execute(MDR);
 
         System.out.println(peerStorage.getFilesDirectory(Integer.parseInt(senderID)) + "/spooky_month.gif");
-        peer.backup(peerStorage.getFilesDirectory(Integer.parseInt(senderID)) + "/spooky_month.gif", 2, "1.0");
+        peer.backup(peerStorage.getFilesDirectory(Integer.parseInt(senderID)) + "/spooky_month.gif", 2);
     }
 }

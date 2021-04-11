@@ -17,9 +17,9 @@ public class PeerStorage {
     public final long DEFAULT_TOTAL_SPACE = 10000000;
 
     //Where you read/store files
-    public final String PEER_FILES_DIR = "files/files/peer-"; //Inner paths are hard coded in a function; DO NOT CHANGE
+    public final String PEER_FILES_DIR = "../../files/files/peer-";
     //Where you store chunks of a file
-    public final String PEER_CHUNKS_DIR = "files/chunks/peer-"; //Inner paths are hard coded in a function; DO NOT CHANGE
+    public final String PEER_CHUNKS_DIR = "../../files/chunks/peer-";
 
     //Filenames that contain the info of every file/chunk
     public final String PEER_FILES_INFO_NAME = "fileInfo.txt";
@@ -42,15 +42,15 @@ public class PeerStorage {
     }
 
     public void createDirectory(int peerID) throws IOException {
-        Path generalPath = Paths.get("files");
+        Path generalPath = Paths.get("../../files");
         if(!Files.exists(generalPath)){
             Files.createDirectory(generalPath);
         }
-        Path filesPath = Paths.get("files/files");
+        Path filesPath = Paths.get("files");
         if(!Files.exists(filesPath)){
             Files.createDirectory(filesPath);
         }
-        Path chunksPath = Paths.get("files/chunks");
+        Path chunksPath = Paths.get("chunks");
         if(!Files.exists(chunksPath)) {
             Files.createDirectory(chunksPath);
         }
@@ -245,11 +245,20 @@ public class PeerStorage {
 
     public long GetOccupiedSpace() {
         long result = 0;
-        for(Map.Entry<String, ChunkFileInfo> entry:  chunkInfos.chunkInfos.entrySet()){
-            for(Chunk chunk: entry.getValue().chunks){
+        for (Map.Entry<String, ChunkFileInfo> entry : chunkInfos.chunkInfos.entrySet()) {
+            for (Chunk chunk : entry.getValue().chunks) {
                 result += chunk.getSize();
             }
         }
+        return result;
+    }
+
+    public String getState() {
+        String result = "";
+        result += this.infos.getState();
+        result += "\n";
+        result += this.chunkInfos.getState();
+
         return result;
     }
 

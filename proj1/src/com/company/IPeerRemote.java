@@ -7,8 +7,9 @@ import java.rmi.RemoteException;
 import java.security.NoSuchAlgorithmException;
 
 public interface IPeerRemote extends Remote {
-    void backup(String path, int replication, String version) throws IOException, NoSuchAlgorithmException;
-    void restore(String path, String version) throws IOException;
-    void delete(String path, String version) throws IOException, NoSuchAlgorithmException;
-    void reclaim(long space, String version) throws IOException;
+    void backup(String path, int replication) throws IOException;
+    void restore(String path) throws IOException;
+    void delete(String path) throws IOException;
+    void reclaim(long space) throws IOException;
+    String state() throws RemoteException;
 }

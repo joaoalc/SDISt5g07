@@ -4,6 +4,7 @@ import com.company.dataStructures.PeerStorage;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 public class MainReclaim {
 
@@ -16,7 +17,9 @@ public class MainReclaim {
 
         PeerStorage peerStorage = new PeerStorage(Integer.parseInt(senderID));
 
-        Peer peer = new Peer(MC, MDB, MDR, senderID, peerStorage);
+        ScheduledThreadPoolExecutor threadPool = new ScheduledThreadPoolExecutor(16);
+
+        Peer peer = new Peer("1.0", MC, MDB, MDR, senderID, peerStorage, threadPool);
 
         MC.setChannelSockets(MC, MDB, MDR);
         MDB.setChannelSockets(MC, MDB, MDR);
@@ -26,10 +29,14 @@ public class MainReclaim {
         MDB.setPeer(peer);
         MDR.setPeer(peer);
 
-        MC.start();
+        /*MC.start();
         MDB.start();
-        MDR.start();
+        MDR.start();*/
 
-        peer.reclaim(0, "1.0");
+        threadPool.execute(MC);
+        threadPool.execute(MDB);
+        threadPool.execute(MDR);
+
+        peer.reclaim(0);
     }
 }

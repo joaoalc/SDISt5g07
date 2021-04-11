@@ -109,8 +109,20 @@ public class MulticastResponseHandler extends Thread{
             }
             else if(arguments.get(1).compareTo("STORED") == 0 && this.callerChannelType == "MC"){
                 //Version STORED SenderID FileID ChunkNo
-                MC.peer.addStoredPeer(arguments.get(3), arguments.get(2), Integer.parseInt(arguments.get(4)));
+                //MC.peer.addStoredPeer(arguments.get(3), arguments.get(2), Integer.parseInt(arguments.get(4)));
+
                 peerStorage.chunkInfos.incrementChunkPerceivedReplicationDegree(arguments.get(3), Integer.parseInt(arguments.get(4)), peerStorage);
+/*=======
+                try {
+                    peerStorage.ReadInfoFromChunkData();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                peerStorage.chunkInfos.incrementChunkPerceivedReplicationDegree(arguments.get(3), Integer.parseInt(arguments.get(4)));
+                peerStorage.WriteInfoToChunkData();
+
+                //peerStorage.chunkInfos.incrementChunkPerceivedReplicationDegree(arguments.get(3), Integer.parseInt(arguments.get(4)));
+>>>>>>> RMI*/
             }
             else if(arguments.get(1).compareTo("DELETE") == 0 && this.callerChannelType == "MC"){
                 try {
@@ -141,7 +153,6 @@ public class MulticastResponseHandler extends Thread{
                         String response = "1.0" + " " + "CHUNK" + " " + senderID + " " + arguments.get(3) + " " + arguments.get(4);
                         byte[] header = new byte[response.length() + 4];
                         System.arraycopy(response.getBytes(StandardCharsets.US_ASCII), 0, header, 0, response.length());
-
 
                         header[response.length()] = 0x0D;
                         header[response.length() + 1] = 0x0A;

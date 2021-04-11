@@ -1,27 +1,24 @@
 package com.company;
 
 import com.company.dataStructures.*;
+import com.company.utils.StringVerification;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.attribute.FileOwnerAttributeView;
-import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 public class Peer implements IPeerRemote {
 
@@ -32,24 +29,27 @@ public class Peer implements IPeerRemote {
     // TODO: Fiz a parte de mudar o fileInfos pelo PeerStorage
     //FileInfos fileInfos = new FileInfos();
 
+    private String protocolVersion;
     private MulticastThread MC, MDB, MDR;
-
     public final String senderID;
     public PeerStorage peerStorage;
+    public ScheduledThreadPoolExecutor threadPool;
 
-    public Peer(MulticastThread MC, MulticastThread MDB, MulticastThread MDR, String senderID, PeerStorage peerStorage) throws IOException {
+    public Peer(String protocolVersion, MulticastThread MC, MulticastThread MDB, MulticastThread MDR, String senderID, PeerStorage peerStorage, ScheduledThreadPoolExecutor threadPool) throws IOException {
+        this.protocolVersion = protocolVersion;
         this.MC = MC;
         this.MDB = MDB;
         this.MDR = MDR;
         this.senderID = senderID;
         this.peerStorage = peerStorage;
+        this.threadPool = threadPool;
         peerStorage.ReadInfoFromChunkData();
         peerStorage.ReadInfoFromFileData();
         System.setProperty("file.encoding", "US-ASCII");
     }
 
     @Override
-    public void backup(String path, int replication, String version) throws IOException{
+    public void backup(String path, int replication) throws IOException {
 
         System.setProperty("file.encoding", "US-ASCII");
         File file = new File(path);
@@ -82,12 +82,7 @@ public class Peer implements IPeerRemote {
         }
         currentFileInfo = this.peerStorage.infos.addFile(currentFileInfo);
 
-
-
-
-
         FileInputStream objReader = new FileInputStream(file);
-
 
         int numBytes = 64000;
         int chunkNo = 0;
@@ -95,7 +90,7 @@ public class Peer implements IPeerRemote {
 
         while(numBytes == 64000) {
             //PUTCHUNK operation
-            String headerString = version + " " + "PUTCHUNK" + " " + senderID + " " + fileID + " " + chunkNo + " " + replication;
+            String headerString = protocolVersion + " " + "PUTCHUNK" + " " + senderID + " " + fileID + " " + chunkNo + " " + replication;
             byte[] currentMessage = new byte[headerString.length() + 4 + 64000];
 
             System.arraycopy(headerString.getBytes(StandardCharsets.US_ASCII), 0, currentMessage, 0, headerString.length());
@@ -201,7 +196,7 @@ public class Peer implements IPeerRemote {
     }
 
     @Override
-    public void restore(String path, String version) throws IOException {
+    public void restore(String path) throws IOException {
 
         FileInfo fileInfo = peerStorage.infos.findByFilePath(path);
         if(fileInfo == null){
@@ -213,7 +208,7 @@ public class Peer implements IPeerRemote {
         restoreFileChunks = new TempFileChunks(fileInfo.numberOfChunks, fileID, new File(path));
 
         for(int chunkNo = 0; chunkNo < fileInfo.usersBackingUp.size(); chunkNo++) {
-            String headerString = "1.0" + " " + "GETCHUNK" + " " + senderID + " " + fileID + " " + String.valueOf(chunkNo);
+            String headerString = protocolVersion + " " + "GETCHUNK" + " " + senderID + " " + fileID + " " + String.valueOf(chunkNo);
 
             byte[] message = new byte[headerString.length() + 4];
             System.arraycopy(headerString.getBytes(StandardCharsets.US_ASCII), 0, message, 0, headerString.length());
@@ -250,8 +245,7 @@ public class Peer implements IPeerRemote {
     }
 
     @Override
-    public void delete(String path, String version) throws IOException{
-        // TODO: implement this
+    public void delete(String path) throws IOException {
         System.setProperty("file.encoding", "US-ASCII");
         File file = new File(path);
         if(!file.exists()){
@@ -271,13 +265,16 @@ public class Peer implements IPeerRemote {
 
         int numberOfChunks = (int) (file.length() / 64000) + 1;
 
-
         FileInfo fileInfo = peerStorage.infos.findByFilePath(path);//new FileInfo(path, unencryptedFileID, numberOfChunks);
         if(fileInfo == null){
             System.out.println("File not found in metafile");
             return;
         }
-        String headerString = version + " " + "DELETE" + " " + senderID + " " + fileInfo.fileID;
+        String headerString = protocolVersion + " " + "DELETE" + " " + senderID + " " + fileInfo.fileID;
+/*=======
+        FileInfo fileInfo = new FileInfo(path, unencryptedFileID, numberOfChunks);
+        String headerString = protocolVersion + " " + "DELETE" + " " + senderID + " " + fileInfo.fileID;
+>>>>>>> RMI*/
         byte[] message = new byte[headerString.length() + 4];
         System.arraycopy(headerString.getBytes(StandardCharsets.US_ASCII), 0, message, 0, headerString.length());
 
@@ -288,20 +285,16 @@ public class Peer implements IPeerRemote {
 
         MC.sendMessage(message, message.length);
 
-
         peerStorage.infos.fileInfos.remove(peerStorage.infos.findByFilePath(path));
         peerStorage.infos.printValuesHumanReadable();
         peerStorage.WriteInfoToFileData();
 
-
-
-
     }
 
     @Override
-    public void reclaim(long space, String version) throws IOException {
+    public void reclaim(long space) throws IOException {
         ArrayList<Chunk> chunks = new ArrayList<>();
-        if (version == "1.0"){
+        if (protocolVersion == "1.0"){
             peerStorage.total_space = space;
             long spaceOccupied = 0;
             for (Map.Entry<String, ChunkFileInfo> file : peerStorage.chunkInfos.chunkInfos.entrySet()) {
@@ -326,7 +319,7 @@ public class Peer implements IPeerRemote {
                     int chunkNo = removedChunk.getChunkNo();
                     spaceOccupied -= removedChunk.getSize();
                     peerStorage.chunkInfos.chunkInfos.get(fileID).removeChunk(chunkNo);
-                    String headerString = version + " " + "REMOVED" + " " + senderID + " " + fileID + " " + chunkNo;
+                    String headerString = protocolVersion + " " + "REMOVED" + " " + senderID + " " + fileID + " " + chunkNo;
                     byte[] message = new byte[headerString.length() + 4];
                     System.arraycopy(headerString.getBytes(StandardCharsets.US_ASCII), 0, message, 0, headerString.length());
 
@@ -349,7 +342,7 @@ public class Peer implements IPeerRemote {
                 int chunkNo = removedChunk.getChunkNo();
                 spaceOccupied -= removedChunk.getSize();
                 peerStorage.chunkInfos.chunkInfos.get(fileID).removeChunk(chunkNo);
-                String headerString = version + " " + "REMOVED" + " " + senderID + " " + fileID + " " + chunkNo;
+                String headerString = protocolVersion + " " + "REMOVED" + " " + senderID + " " + fileID + " " + chunkNo;
                 byte[] message = new byte[headerString.length() + 4];
                 System.arraycopy(headerString.getBytes(StandardCharsets.US_ASCII), 0, message, 0, headerString.length());
 
@@ -368,57 +361,109 @@ public class Peer implements IPeerRemote {
                 }
             }
         }
-
-
-
     }
 
-    public static void main(String[] args) {
+    @Override
+    public String state() throws RemoteException {
+        return peerStorage.getState();
+    }
 
-        String headerString = "1.0" + " " + "PUTCHUNK" + " " + "1" + " " + "200" + " " + "3" + " " + "7";
-        byte[] currentMessage = new byte[headerString.length() + 4 + 64000];
+    public static void printUsage() {
+        System.out.println("Usage: Peer <protocol_version> <peer_id> <acess_point> <mc_address> <mc_port> <mdb_address> <mdb_port> <mdr_address> <mdr_port>");
+    }
 
-        /*for (int i = 0; i < headerString.length(); i++) {
-            currentMessage[i] = (byte) headerString.charAt(i);
-        }*/
-        System.arraycopy(headerString.getBytes(StandardCharsets.US_ASCII), 0, currentMessage, 0, headerString.length());
+    public static void main(String[] args) throws IOException {
 
-        for (int i = 0; i < headerString.length(); i++) {
-            System.out.println(currentMessage[i]);
-        }
-
-
-/*
         if (args.length != 9) {
-            System.out.println("Usage: Peer <protocol_version> <peer_id> <acess_point> <mc_address> <mc_port> <mdb_address> <mdb_port> <mdr_address> <mdr_port>");
+            printUsage();
             System.exit(-1);
         }
 
         String protocolVersion = args[0];
-        int peerID = Integer.parseInt(args[1]);
-        String acessPoint = args[2];
+        if (!StringVerification.verifyVersion(protocolVersion)) {
+            System.out.println("Invalid version: " + args[0]);
+            System.exit(-1);
+        }
+
+        String senderID = args[1];
+        /*int peerID = StringVerification.verifyPositiveInt(args[1]);
+        if (peerID == -1) {
+            System.out.println("Invalid peer id: " + args[1]);
+            System.exit(-1);
+        }*/
+        String accessPoint = args[2];
 
         String MCAddress = args[3];
-        int MCPort = Integer.parseInt(args[4]);
+        if (!StringVerification.verifyIpAddress(MCAddress)) {
+            System.out.println("Invalid ipAddress must be in (224.0.0.0 - 239.255.255.255): " + args[3]);
+            System.exit(-1);
+        }
+        int MCPort = StringVerification.verifyPositiveInt(args[4]);
+        if (MCPort == -1) {
+            System.out.println("Invalid MC port: " + args[4]);
+            System.exit(-1);
+        }
 
         String MDBAddress = args[5];
-        int MDBPort = Integer.parseInt(args[6]);
+        if (!StringVerification.verifyIpAddress(MDBAddress)) {
+            System.out.println("Invalid ipAddress must be in (224.0.0.0 - 239.255.255.255): " + args[5]);
+            System.exit(-1);
+        }
+        int MDBPort = StringVerification.verifyPositiveInt(args[6]);
+        if (MDBPort == -1) {
+            System.out.println("Invalid MDB port: " + args[6]);
+            System.exit(-1);
+        }
 
         String MDRAddress = args[7];
-        int MDRPort = Integer.parseInt(args[8]);
+        if (!StringVerification.verifyIpAddress(MDRAddress)) {
+            System.out.println("Invalid ipAddress must be in (224.0.0.0 - 239.255.255.255): " + args[7]);
+            System.exit(-1);
+        }
+        int MDRPort = StringVerification.verifyPositiveInt(args[8]);
+        if (MDRPort == -1) {
+            System.out.println("Invalid MDR port: " + args[8]);
+            System.exit(-1);
+        }
+
+        // Create Channels
+        MulticastThread MC = new MulticastThread(MCAddress, MCPort, senderID, "MC");
+        MulticastThread MDB = new MulticastThread(MDBAddress, MDBPort, senderID, "MDB");
+        MulticastThread MDR = new MulticastThread(MDRAddress, MDRPort, senderID, "MDR");
+
+        PeerStorage peerStorage = new PeerStorage(Integer.parseInt(senderID));
+
+        ScheduledThreadPoolExecutor threadPool = new ScheduledThreadPoolExecutor(16);
 
         try {
-            Peer peer = new Peer(MCAddress, MCPort, MDBAddress, MDBPort, MDRAddress, MDRPort);
+            Peer peer = new Peer(protocolVersion, MC, MDB, MDR, senderID, peerStorage, threadPool);
             IPeerRemote stub = (IPeerRemote) UnicastRemoteObject.exportObject(peer, 0);
 
             // Bind the remote object's stub in the registry
             Registry registry = LocateRegistry.getRegistry();
-            registry.bind(acessPoint, stub);
+            registry.rebind(accessPoint, stub);
+
+            MC.setChannelSockets(MC, MDB, MDR);
+            MDB.setChannelSockets(MC, MDB, MDR);
+            MDR.setChannelSockets(MC, MDB, MDR);
+
+            MC.setPeer(peer);
+            MDB.setPeer(peer);
+            MDR.setPeer(peer);
+
+            /*MC.start();
+            MDB.start();
+            MDR.start();*/
+
+            threadPool.execute(MC);
+            threadPool.execute(MDB);
+            threadPool.execute(MDR);
 
             System.out.println("Peer ready");
-        } catch (RemoteException | AlreadyBoundException e) {
+
+        } catch (Exception e) {
             e.printStackTrace();
-        }*/
+        }
     }
 
     public void addStoredPeer(String fileID, String userID, int chunkNo) {
@@ -437,8 +482,8 @@ public class Peer implements IPeerRemote {
         }
         if(file.fileID != fileID){
             System.out.println("This file's backups are outdated! Deleting old backups and backing up again");
-            delete(filePath, "1.0");
-            backup(filePath, desiredReplicationDegree, "1.0");
+            delete(filePath);
+            backup(filePath, desiredReplicationDegree);
             return true;
         }
         else{
@@ -454,8 +499,8 @@ public class Peer implements IPeerRemote {
         }
         if(file.fileID != fileID){
             System.out.println("This file's backups are outdated! Deleting old backups and backing up again");
-            delete(filePath, "1.0");
-            backup(filePath, desiredReplicationDegree, "1.0");
+            delete(filePath);
+            backup(filePath, desiredReplicationDegree);
             return true;
         }
         else{
