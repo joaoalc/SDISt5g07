@@ -152,7 +152,7 @@ public class PeerStorage {
     public void WriteInfoToFileData(){
         File outputFile = new File(PEER_FILES_DIR + peerID + "/" + PEER_FILES_INFO_NAME);
         if(outputFile.exists() && !outputFile.isDirectory()){
-            System.out.println("No file data found for this peer, creating new file.");
+            //System.out.println("No file data found for this peer, creating new file.");
 
         }
         //TODO: Convert to toString method override in PeerStorage
@@ -233,7 +233,7 @@ public class PeerStorage {
     public void WriteInfoToChunkData(){
         File outputFile = new File(PEER_CHUNKS_DIR + peerID + "/" + PEER_CHUNKS_INFO_NAME);
         if(outputFile.exists() && !outputFile.isDirectory()){
-            System.out.println("No file data found for this peer, creating new file.");
+            //System.out.println("No file data found for this peer, creating new file.");
 
         }
         String result = chunkInfos.chunkInfos.size() + " " + total_space + "\n";

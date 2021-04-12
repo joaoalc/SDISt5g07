@@ -494,7 +494,6 @@ public class Peer implements IPeerRemote {
         if(file.fileID.compareTo(fileID) != 0){
             System.out.println("This file's backups are outdated! Deleting old backups and backing up again");
             delete(filePath);
-            backup(filePath, desiredReplicationDegree);
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
@@ -516,7 +515,6 @@ public class Peer implements IPeerRemote {
         if(file.fileID != fileID){
             System.out.println("This file's backups are outdated! Deleting old backups and backing up again");
             delete(filePath);
-            backup(filePath, desiredReplicationDegree);
             return true;
         }
         else{

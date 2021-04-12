@@ -3,6 +3,8 @@ package com.company;
 import com.company.Client;
 import com.company.utils.StringVerification;
 
+import java.util.Scanner;
+
 public class TestApp {
 
     public static void printUsage() {
@@ -103,5 +105,8 @@ public class TestApp {
             printUsage();
             System.exit(-1);
         }
+        Scanner scanner = new Scanner(System.in);
+        scanner.nextLine();
+
     }
 }
