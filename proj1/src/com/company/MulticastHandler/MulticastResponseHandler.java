@@ -52,8 +52,6 @@ public class MulticastResponseHandler extends Thread{
 
 
 
-        //Is this my own message?
-        if(arguments.get(2).compareTo(senderID) != 0) {
             if (arguments.get(1).compareTo("PUTCHUNK") == 0 && this.callerChannelType == "MDB") {
                 //<Version> PUTCHUNK <SenderId> <FileId> <ChunkNo> <ReplicationDeg>
 
@@ -66,6 +64,10 @@ public class MulticastResponseHandler extends Thread{
 
                 //Cannot back up own message
                 if(peerStorage.infos.findByFileID(arguments.get(3)) != null){
+                    if(arguments.get(2).compareTo(senderID) != 0) {
+                        return;
+                    }
+
                     System.out.println("This peer owns the file; not backing it up.");
                     return;
                 }
@@ -110,167 +112,156 @@ public class MulticastResponseHandler extends Thread{
                 }
             }
             else if(arguments.get(1).compareTo("STORED") == 0 && this.callerChannelType == "MC"){
-                //Version STORED SenderID FileID ChunkNo
-                //MC.peer.addStoredPeer(arguments.get(3), arguments.get(2), Integer.parseInt(arguments.get(4)));
-
-                //peerStorage.chunkInfos.incrementChunkPerceivedReplicationDegree(arguments.get(3), Integer.parseInt(arguments.get(4)), peerStorage);
-/*=======
-                try {
-                    peerStorage.ReadInfoFromChunkData();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if(arguments.get(2).compareTo(senderID) != 0) {
+                    MC.peer.addStoredPeer(arguments.get(3), arguments.get(2), Integer.parseInt(arguments.get(4)));
+                    peerStorage.chunkInfos.incrementChunkPerceivedReplicationDegree(arguments.get(3), Integer.parseInt(arguments.get(4)), peerStorage, Integer.parseInt(arguments.get(2)));
                 }
-                peerStorage.chunkInfos.incrementChunkPerceivedReplicationDegree(arguments.get(3), Integer.parseInt(arguments.get(4)));
-                peerStorage.WriteInfoToChunkData();
-
-                //peerStorage.chunkInfos.incrementChunkPerceivedReplicationDegree(arguments.get(3), Integer.parseInt(arguments.get(4)));
->>>>>>> RMI*/
-                MC.peer.addStoredPeer(arguments.get(3), arguments.get(2), Integer.parseInt(arguments.get(4)));
-                peerStorage.chunkInfos.incrementChunkPerceivedReplicationDegree(arguments.get(3), Integer.parseInt(arguments.get(4)), peerStorage, Integer.parseInt(arguments.get(2)));
             }
             else if(arguments.get(1).compareTo("DELETE") == 0 && this.callerChannelType == "MC"){
-                try {
-                    ChunkFileInfo info = peerStorage.chunkInfos.chunkInfos.get(arguments.get(3));
-                    if(info != null) {
-                        for (Chunk chunk : info.chunks) {
-                            File file = new File(path + "/" + arguments.get(3) + "-" + chunk.getChunkNo());
-                            Files.deleteIfExists(file.toPath());
-                        }
-                    }
-                    peerStorage.chunkInfos.chunkInfos.remove(arguments.get(3));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                peerStorage.WriteInfoToChunkData();
-            }
-            else if(arguments.get(1).compareTo("GETCHUNK") == 0 && this.callerChannelType == "MC"){
-                //<Version> GETCHUNK <SenderID> <FileID> <ChunkNo>
-                ChunkFileInfo info = peerStorage.chunkInfos.chunkInfos.get(arguments.get(3));
-                if (info != null) {
-                    //Add to file queue
-                    MC.restorePeers.put(arguments.get(3) + "-" + arguments.get(4), this);
-                    restoreInfo = new RestoreInfo(arguments.get(3), arguments.get(4));
-
-
-                    if(info.getChunk(Integer.parseInt(arguments.get(4))) != null){
-                        String response = "1.0" + " " + "CHUNK" + " " + senderID + " " + arguments.get(3) + " " + arguments.get(4);
-                        byte[] header = new byte[response.length() + 4];
-                        System.arraycopy(response.getBytes(StandardCharsets.US_ASCII), 0, header, 0, response.length());
-
-                        header[response.length()] = 0x0D;
-                        header[response.length() + 1] = 0x0A;
-                        header[response.length() + 2] = 0x0D;
-                        header[response.length() + 3] = 0x0A;
-
-                        /*
-                        System.out.print("Header: ");
-                        for(int i = 0; i < header.length; i++){
-                            System.out.print(header[i]);
-                        }
-                        System.out.println("");*/
-
-
-                        File file = new File(path + "/" + arguments.get(3) + "-" + arguments.get(4));
-
-                        //TODO: IMPORTANT - MESSAGE SHOULD NOT BE SENT IF ANOTHER PEER HAS SENT THE CHUNK ALREADY IN THE MEANTIME OF THE SLEEP
-                        randomSleep(100, 400);
-
-                        if(!restoreInfo.repeat) {
-
-                            byte[] message;
-                            try {
-                                message = MessageCreator.CreateChunkReclaimMessage(header, file);
-                                MDR.getSocket().send(new DatagramPacket(message, message.length, MDR.getGroup(), MDR.getInfo().getPort()));
-                            } catch (IOException e) {
-                                System.out.println("Could not create chunk reclaim message");
-                                e.printStackTrace();
+                if(arguments.get(2).compareTo(senderID) != 0) {
+                    try {
+                        ChunkFileInfo info = peerStorage.chunkInfos.chunkInfos.get(arguments.get(3));
+                        if (info != null) {
+                            for (Chunk chunk : info.chunks) {
+                                File file = new File(path + "/" + arguments.get(3) + "-" + chunk.getChunkNo());
+                                Files.deleteIfExists(file.toPath());
                             }
                         }
-                        else{
-                            System.out.println("Not sending repeat message.");
-                        }
-
-
+                        peerStorage.chunkInfos.chunkInfos.remove(arguments.get(3));
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
+                    peerStorage.WriteInfoToChunkData();
+                }
+            }
+            else if(arguments.get(1).compareTo("GETCHUNK") == 0 && this.callerChannelType == "MC"){
+                if(arguments.get(2).compareTo(senderID) != 0) {
+                    //<Version> GETCHUNK <SenderID> <FileID> <ChunkNo>
+                    ChunkFileInfo info = peerStorage.chunkInfos.chunkInfos.get(arguments.get(3));
+                    if (info != null) {
+                        //Add to file queue
+                        MC.restorePeers.put(arguments.get(3) + "-" + arguments.get(4), this);
+                        restoreInfo = new RestoreInfo(arguments.get(3), arguments.get(4));
 
+
+                        if (info.getChunk(Integer.parseInt(arguments.get(4))) != null) {
+                            String response = "1.0" + " " + "CHUNK" + " " + senderID + " " + arguments.get(3) + " " + arguments.get(4);
+                            byte[] header = new byte[response.length() + 4];
+                            System.arraycopy(response.getBytes(StandardCharsets.US_ASCII), 0, header, 0, response.length());
+
+                            header[response.length()] = 0x0D;
+                            header[response.length() + 1] = 0x0A;
+                            header[response.length() + 2] = 0x0D;
+                            header[response.length() + 3] = 0x0A;
+
+                            /*
+                            System.out.print("Header: ");
+                            for(int i = 0; i < header.length; i++){
+                                System.out.print(header[i]);
+                            }
+                            System.out.println("");*/
+
+
+                            File file = new File(path + "/" + arguments.get(3) + "-" + arguments.get(4));
+
+                            //TODO: IMPORTANT - MESSAGE SHOULD NOT BE SENT IF ANOTHER PEER HAS SENT THE CHUNK ALREADY IN THE MEANTIME OF THE SLEEP
+                            randomSleep(100, 400);
+
+                            if (!restoreInfo.repeat) {
+
+                                byte[] message;
+                                try {
+                                    message = MessageCreator.CreateChunkReclaimMessage(header, file);
+                                    MDR.getSocket().send(new DatagramPacket(message, message.length, MDR.getGroup(), MDR.getInfo().getPort()));
+                                } catch (IOException e) {
+                                    System.out.println("Could not create chunk reclaim message");
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                System.out.println("Not sending repeat message.");
+                            }
+
+
+                        }
+                    }
                 }
             }
             else if(arguments.get(1).compareTo("CHUNK") == 0 && this.callerChannelType == "MDR") {
-                //Version CHUNK SenderID FileID ChunkNO
-                MulticastResponseHandler MRH = MC.restorePeers.get(arguments.get(3) + "-" + arguments.get(4));
-                if(MRH != null){
-                    //MC.restorePeers.put(arguments.get(3) + "-" + arguments.get(4), this);
-                    System.out.println("Stopping other thread from sending CHUNK response");
-                    MRH.restoreInfo.repeat = true;
-                }
+                if(arguments.get(2).compareTo(senderID) != 0) {
 
-                if(MC.peer.restoreFileChunks != null){
-                    if(arguments.get(3).compareTo(MC.peer.restoreFileChunks.fileID) == 0){
-                        byte[] body = MessageParser.getBody(request);
-                        MC.peer.restoreFileChunks.addChunk(body, Integer.parseInt(arguments.get(4)));
+                    //Version CHUNK SenderID FileID ChunkNO
+                    MulticastResponseHandler MRH = MC.restorePeers.get(arguments.get(3) + "-" + arguments.get(4));
+                    if (MRH != null) {
+                        //MC.restorePeers.put(arguments.get(3) + "-" + arguments.get(4), this);
+                        System.out.println("Stopping other thread from sending CHUNK response");
+                        MRH.restoreInfo.repeat = true;
+                    }
+
+                    if (MC.peer.restoreFileChunks != null) {
+                        if (arguments.get(3).compareTo(MC.peer.restoreFileChunks.fileID) == 0) {
+                            byte[] body = MessageParser.getBody(request);
+                            MC.peer.restoreFileChunks.addChunk(body, Integer.parseInt(arguments.get(4)));
+                        }
                     }
                 }
             }
-            else if(arguments.get(1).compareTo("REMOVED") == 0 && this.callerChannelType == "MC"){
+            else if(arguments.get(1).compareTo("REMOVED") == 0 && this.callerChannelType == "MC") {
                 //<Version> REMOVED <SenderId> <FileId> <ChunkNo>
-
-                //Find file info with this chunk; remove user backing up from it
-                FileInfo fInfo = MC.peer.peerStorage.infos.findByFileID(arguments.get(3));
-                if(fInfo != null){
-                    if(fInfo.usersBackingUp.size() <= Integer.parseInt(arguments.get(4))){
-                        return;
-                    }
-                    fInfo.usersBackingUp.get(Integer.parseInt(arguments.get(4))).remove(arguments.get(2));
-                    MC.peer.peerStorage.WriteInfoToFileData();
-                }
-
-                ChunkFileInfos CFIS = MC.peer.peerStorage.chunkInfos;
-                ChunkFileInfo CFI = CFIS.chunkInfos.get(arguments.get(3));
-                if(CFI != null){
-                    Chunk chunk = CFI.chunks.get(Integer.parseInt(arguments.get(4)));
-                    if(chunk != null){
-                        chunk.decrementPerceivedReplicationDegree(MC.peer.peerStorage, Integer.parseInt(arguments.get(2)));
-                        if(chunk.getPerceivedReplicationDegree() == 0){
-                            chunk.incrementPerceivedReplicationDegree(MC.peer.peerStorage, Integer.parseInt(arguments.get(2)));
+                if(arguments.get(2).compareTo(senderID) != 0) {
+                    //Find file info with this chunk; remove user backing up from it
+                    FileInfo fInfo = MC.peer.peerStorage.infos.findByFileID(arguments.get(3));
+                    if (fInfo != null) {
+                        if (fInfo.usersBackingUp.size() <= Integer.parseInt(arguments.get(4))) {
+                            return;
                         }
-                        if(chunk.getPerceivedReplicationDegree() < chunk.getDesiredReplicationDegree()){
-                            RemoveInfo removeInfo = new RemoveInfo(arguments.get(3), arguments.get(4), this);
-                            MC.removePeers.put(arguments.get(3) + "-" + arguments.get(4), removeInfo);
+                        fInfo.usersBackingUp.get(Integer.parseInt(arguments.get(4))).remove(arguments.get(2));
+                        MC.peer.peerStorage.WriteInfoToFileData();
+                    }
 
-                            if(arguments.get(4).compareTo("1") == 0){
-                                System.out.println("Chunk 1 about to sleep");
+                    ChunkFileInfos CFIS = MC.peer.peerStorage.chunkInfos;
+                    ChunkFileInfo CFI = CFIS.chunkInfos.get(arguments.get(3));
+                    if (CFI != null) {
+                        Chunk chunk = CFI.chunks.get(Integer.parseInt(arguments.get(4)));
+                        if (chunk != null) {
+                            chunk.decrementPerceivedReplicationDegree(MC.peer.peerStorage, Integer.parseInt(arguments.get(2)));
+                            if (chunk.getPerceivedReplicationDegree() == 0) {
+                                chunk.incrementPerceivedReplicationDegree(MC.peer.peerStorage, Integer.parseInt(arguments.get(2)));
                             }
-                            randomSleep(100, 400);
-                            //Interrupt other processes trying to backup this chunk
-                            RemoveInfo rInfo = MC.removePeers.get(arguments.get(3) + "-" + arguments.get(4));
-                            if(rInfo != null){
-                                if(rInfo.repeat == true){
-                                    System.out.println("Another chunk is already going to be backed up.");
-                                    return;
-                                }
-                            }
-                            try {
-                                MDB.peer.backupChunk(arguments.get(3), chunk.getDesiredReplicationDegree(), Integer.parseInt(arguments.get(4)), "1.0");
+                            if (chunk.getPerceivedReplicationDegree() < chunk.getDesiredReplicationDegree()) {
+                                RemoveInfo removeInfo = new RemoveInfo(arguments.get(3), arguments.get(4), this);
+                                MC.removePeers.put(arguments.get(3) + "-" + arguments.get(4), removeInfo);
 
-                                if(arguments.get(4).compareTo("1") == 0){
-                                    System.out.println("Sent putchunk message now!");
+                                if (arguments.get(4).compareTo("1") == 0) {
+                                    System.out.println("Chunk 1 about to sleep");
                                 }
-                                MC.removePeers.remove(arguments.get(3) + "-" + arguments.get(2));
-                            } catch (IOException e) {
+                                randomSleep(100, 400);
+                                //Interrupt other processes trying to backup this chunk
+                                RemoveInfo rInfo = MC.removePeers.get(arguments.get(3) + "-" + arguments.get(4));
+                                if (rInfo != null) {
+                                    if (rInfo.repeat == true) {
+                                        System.out.println("Another chunk is already going to be backed up.");
+                                        return;
+                                    }
+                                }
+                                try {
+                                    MDB.peer.backupChunk(arguments.get(3), chunk.getDesiredReplicationDegree(), Integer.parseInt(arguments.get(4)), "1.0");
 
-                                if(arguments.get(4).compareTo("1") == 0) {
-                                    System.out.println("Could not execute chunk backup.");
+                                    if (arguments.get(4).compareTo("1") == 0) {
+                                        System.out.println("Sent putchunk message now!");
+                                    }
+                                    MC.removePeers.remove(arguments.get(3) + "-" + arguments.get(2));
+                                } catch (IOException e) {
+
+                                    if (arguments.get(4).compareTo("1") == 0) {
+                                        System.out.println("Could not execute chunk backup.");
+                                    }
+                                    e.printStackTrace();
                                 }
-                                e.printStackTrace();
                             }
                         }
                     }
                 }
             }
-        }
-        else{
-            //System.out.println("Received own message");
-        }
     }
 
     void randomSleep(int min, int max){
