@@ -49,7 +49,9 @@ public class Chunk {
     }
 
     public void decrementPerceivedReplicationDegree(PeerStorage peerStorage, int userID) {
-        this.peersBackingUp.remove(userID);
+        if(this.peersBackingUp.contains(userID)) {
+            this.peersBackingUp.remove((Integer) userID);
+        }
         peerStorage.WriteInfoToChunkData();
     }
 

@@ -37,6 +37,6 @@ public class MainReclaim {
         threadPool.execute(MDB);
         threadPool.execute(MDR);
 
-        peer.reclaim(0);
+        peer.reclaim(300000);
     }
 }

@@ -16,6 +16,12 @@ public class PeerStorage {
 
     public final long DEFAULT_TOTAL_SPACE = 10000000;
 
+
+    //Where you read/store files
+    //public final String PEER_FILES_DIR = "files/files/peer-";
+    //Where you store chunks of a file
+    //public final String PEER_CHUNKS_DIR = "files/chunks/peer-";
+
     //Where you read/store files
     public final String PEER_FILES_DIR = "../../files/files/peer-";
     //Where you store chunks of a file
@@ -209,7 +215,7 @@ public class PeerStorage {
                 String[] args2 = line2.split(" ");
                 ArrayList<Integer> peersBackingUp = new ArrayList<>();
                 for(int l = 4; l < args2.length; l++){
-                    peersBackingUp.add(l);
+                    peersBackingUp.add(Integer.valueOf(args2[l]));
                 }
                 info.chunks.add(new Chunk(Integer.parseInt(args2[0]), Integer.parseInt(args2[1]), Integer.parseInt(args2[2]), peersBackingUp, args[0]));
             }
