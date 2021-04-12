@@ -23,9 +23,14 @@ public class PeerStorage {
     //public final String PEER_CHUNKS_DIR = "files/chunks/peer-";
 
     //Where you read/store files
-    public final String PEER_FILES_DIR = "../../files/files/peer-";
+    public final String PEER_FILES_DIR = "../../src/build/files/peer-";
     //Where you store chunks of a file
-    public final String PEER_CHUNKS_DIR = "../../files/chunks/peer-";
+    public final String PEER_CHUNKS_DIR = "../../src/build/chunks/peer-";
+
+    //Where you read/store files
+    //public final String PEER_FILES_DIR = "../../files/files/peer-";
+    //Where you store chunks of a file
+    //public final String PEER_CHUNKS_DIR = "../../files/chunks/peer-";
 
     //Filenames that contain the info of every file/chunk
     public final String PEER_FILES_INFO_NAME = "fileInfo.txt";
@@ -48,15 +53,15 @@ public class PeerStorage {
     }
 
     public void createDirectory(int peerID) throws IOException {
-        Path generalPath = Paths.get("../../files");
+        Path generalPath = Paths.get("../../src/build");
         if(!Files.exists(generalPath)){
             Files.createDirectory(generalPath);
         }
-        Path filesPath = Paths.get("files");
+        Path filesPath = Paths.get("../../src/build/files");
         if(!Files.exists(filesPath)){
             Files.createDirectory(filesPath);
         }
-        Path chunksPath = Paths.get("chunks");
+        Path chunksPath = Paths.get("../../src/build/chunks");
         if(!Files.exists(chunksPath)) {
             Files.createDirectory(chunksPath);
         }
