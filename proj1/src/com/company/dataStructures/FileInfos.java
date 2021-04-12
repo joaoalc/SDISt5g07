@@ -77,9 +77,9 @@ public class FileInfos {
             result += "The file's ID is: " + fInfo.fileID + "\n";
             //result += "The file's desired replication degree is: " + fInfo. + "\n";
             result += "The file has a total of " + fInfo.usersBackingUp.size() + " chunks:\n";
-
+            result += "Desired replication degree: " + fInfo.desiredReplicationDegree + "\n";
             for(int i = 0; i < fInfo.usersBackingUp.size(); i++){
-                result += "\t- Chunk number " + i + " has " + fInfo.usersBackingUp.get(i).size() + " users backing it up, whose Ids are:\n";
+                result += "\t- Chunk number " + i + " has " + fInfo.usersBackingUp.get(i).size() + " perceived replication degree." + "\n";
             }
         }
         return result;

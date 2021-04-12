@@ -95,10 +95,10 @@ public class ChunkFileInfos {
 
             result += "The file has " + set.getValue().chunks.size() + " chunks:";
             for (Chunk chunk : set.getValue().chunks){
-                result += "\t- ID: " + chunk.getChunkNo();
-                result += "\t- Size: " + chunk.getSize();
-                result += "\t- Desired replication degree: " + chunk.getDesiredReplicationDegree();
-                result += "\t- Perceived replication degree: " + chunk.getPerceivedReplicationDegree();
+                result += "\t- ID: " + chunk.getChunkNo() + "\n";
+                result += "\t- Size: " + chunk.getSize() + "\n";
+                result += "\t- Desired replication degree: " + chunk.getDesiredReplicationDegree() + "\n";
+                result += "\t- Perceived replication degree: " + chunk.getPerceivedReplicationDegree() + "\n";
             }
         }
 
