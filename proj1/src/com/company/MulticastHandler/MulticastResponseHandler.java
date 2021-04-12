@@ -1,8 +1,6 @@
 package com.company.MulticastHandler;
 
-import com.company.Message;
 import com.company.MulticastThread;
-import com.company.Peer;
 import com.company.dataStructures.*;
 import com.company.utils.ChunkWritter;
 import com.company.utils.MessageCreator;
@@ -154,17 +152,8 @@ public class MulticastResponseHandler extends Thread{
                             header[response.length() + 2] = 0x0D;
                             header[response.length() + 3] = 0x0A;
 
-                            /*
-                            System.out.print("Header: ");
-                            for(int i = 0; i < header.length; i++){
-                                System.out.print(header[i]);
-                            }
-                            System.out.println("");*/
-
-
                             File file = new File(path + "/" + arguments.get(3) + "-" + arguments.get(4));
 
-                            //TODO: IMPORTANT - MESSAGE SHOULD NOT BE SENT IF ANOTHER PEER HAS SENT THE CHUNK ALREADY IN THE MEANTIME OF THE SLEEP
                             randomSleep(100, 400);
 
                             if (!restoreInfo.repeat) {

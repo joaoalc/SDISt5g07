@@ -16,21 +16,10 @@ public class PeerStorage {
 
     public final long DEFAULT_TOTAL_SPACE = 10000000;
 
-
-    //Where you read/store files
-    //public final String PEER_FILES_DIR = "src/build/files/peer-";
-    //Where you store chunks of a file
-    //public final String PEER_CHUNKS_DIR = "src/build/chunks/peer-";
-
     //Where you read/store files
     public final String PEER_FILES_DIR = "../../src/build/files/peer-";
     //Where you store chunks of a file
     public final String PEER_CHUNKS_DIR = "../../src/build/chunks/peer-";
-
-    //Where you read/store files
-    //public final String PEER_FILES_DIR = "../../files/files/peer-";
-    //Where you store chunks of a file
-    //public final String PEER_CHUNKS_DIR = "../../files/chunks/peer-";
 
     //Filenames that contain the info of every file/chunk
     public final String PEER_FILES_INFO_NAME = "fileInfo.txt";
@@ -40,7 +29,6 @@ public class PeerStorage {
 
     public PeerStorage(int peerID){
         this.peerID = peerID;
-        //TODO: Change later to add the info from the files file
         infos = new FileInfos();
         chunkInfos = new ChunkFileInfos();
         try {
@@ -142,8 +130,6 @@ public class PeerStorage {
             }
 
             infos.fileInfos.add(info);
-
-            //infos.printValuesHumanReadable();
         }
 
 
@@ -151,11 +137,7 @@ public class PeerStorage {
 
     public void WriteInfoToFileData(){
         File outputFile = new File(PEER_FILES_DIR + peerID + "/" + PEER_FILES_INFO_NAME);
-        if(outputFile.exists() && !outputFile.isDirectory()){
-            //System.out.println("No file data found for this peer, creating new file.");
 
-        }
-        //TODO: Convert to toString method override in PeerStorage
         String result = infos.fileInfos.size() + "\n";
         for(FileInfo fInfo: infos.fileInfos){
             result += fInfo.filePath + "\n" + fInfo.unencryptedFileID + "\n" + fInfo.fileID + "\n" + fInfo.numberOfChunks + " " + fInfo.desiredReplicationDegree + "\n";
@@ -232,18 +214,11 @@ public class PeerStorage {
 
     public void WriteInfoToChunkData(){
         File outputFile = new File(PEER_CHUNKS_DIR + peerID + "/" + PEER_CHUNKS_INFO_NAME);
-        if(outputFile.exists() && !outputFile.isDirectory()){
-            //System.out.println("No file data found for this peer, creating new file.");
 
-        }
         String result = chunkInfos.chunkInfos.size() + " " + total_space + "\n";
-        int fileNum = 0;
         for(Map.Entry<String, ChunkFileInfo> set: chunkInfos.chunkInfos.entrySet()){
             //(File path of when this version of the file was inserted, file could've been manually moved or overwritte, in which case it would not be there)
             result += set.getKey() + " " + set.getValue().chunks.size() + "\n";
-            /*for(int i = 0; i < set.getValue().chunks.size(); i++) {
-                result += i + "\n";
-            }*/
 
             for (Chunk chunk : set.getValue().chunks) {
                 result += chunk.toString() + "\n";
@@ -279,11 +254,4 @@ public class PeerStorage {
 
         return result;
     }
-
-    /*public static void main(String[] args) {
-        PeerStorage storage = new PeerStorage(35);
-
-        storage.infos.addFile(new FileInfo())
-    }*/
-
 }

@@ -1,6 +1,5 @@
 package com.company;
 
-import com.company.Client;
 import com.company.utils.StringVerification;
 
 import java.util.Scanner;

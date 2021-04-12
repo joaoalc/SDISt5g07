@@ -24,7 +24,6 @@ public class MulticastThread extends Thread{
     private MulticastThread MDB;
     private MulticastThread MDR;
 
-    //TODO: Use this to know which channel the message comes from
     String channelType;
 
     String senderID;

@@ -7,7 +7,6 @@ public class Chunk {
     private int chunkNo;
     private long size;
     private int desiredReplicationDegree;
-    //private int perceivedReplicationDegree;
     private String fileID; //Already stored in ChunkFileInfos hashmap, but we need it here for faster acess
     public ArrayList<Integer> peersBackingUp = new ArrayList<>();
 
@@ -15,7 +14,6 @@ public class Chunk {
         this.chunkNo = chunkNo;
         this.size = size;
         this.desiredReplicationDegree = desiredReplicationDegree;
-        //this.perceivedReplicationDegree = perceivedReplicationDegree;
         this.peersBackingUp = peersBackingUp;
         this.fileID = fileID;
     }

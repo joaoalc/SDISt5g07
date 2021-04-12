@@ -64,8 +64,6 @@ public class Peer implements IPeerRemote {
         String unencryptedFileID = file.getName() + date + owner;
         //Add the file to the list of your files that have been backed up
 
-        //FileInfo currentFileInfo = fileInfos.addFile(new FileInfo(path, unencryptedFileID));
-
         int numberOfChunks = (int) (file.length() / 64000) + 1;
 
 
@@ -455,10 +453,6 @@ public class Peer implements IPeerRemote {
             MDB.setPeer(peer);
             MDR.setPeer(peer);
 
-            /*MC.start();
-            MDB.start();
-            MDR.start();*/
-
             threadPool.execute(MC);
             threadPool.execute(MDB);
             threadPool.execute(MDR);
@@ -473,7 +467,6 @@ public class Peer implements IPeerRemote {
     public void addStoredPeer(String fileID, String userID, int chunkNo) {
         FileInfo a = this.peerStorage.infos.findByFileID(fileID);
         if(a == null){
-            //System.out.println("No file found.");
             return;
         }
         this.peerStorage.infos.findByFileID(fileID).addUser(userID, chunkNo);

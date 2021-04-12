@@ -10,14 +10,10 @@ import java.util.regex.Pattern;
 public class MessageParser {
 
     private static final Pattern versionPattern = Pattern.compile("[0-9]\\.[0-9]");
-    //private static final Pattern versionPattern1 = Pattern.compile("0\\.0");
     private static final Pattern fileIdPattern = Pattern.compile("([0-9A-Fa-f]{2}){32}");
     private static final Pattern chunkNoPattern = Pattern.compile("[0-9]{1,6}");
     private static final Pattern replicationDegPattern = Pattern.compile("[0-9]");
 
-
-    //TODO: fix, probably byte[] to string conversion breaking the endOfHeader search (at the function call)?
-    //TODO: Probably an error if the string ends in the first 0x0D 0x0A 0x0D 0x0A
     public static ArrayList<String> getFirstLineArguments(String message){
         byte[] CRLF = {0x0D, 0x0A};
         byte[] doubleCRLF = {0x0D, 0x0A, 0x0D, 0x0A};
@@ -147,16 +143,7 @@ public class MessageParser {
         }
 
         System.out.println("");
-        //byte[] body = getBody(bytes);
         System.out.println("");
-        //System.out.println("\"" + new String(bytes) + "\"");
         System.out.println("\"" + getFirstLineArguments(new String(bytes)) + "\"");
-
-        //for(int i = 0; i < )
-        //System.out.println("Length difference: " + (bytes.length - body.length));
-
-
     }
-
-
 }

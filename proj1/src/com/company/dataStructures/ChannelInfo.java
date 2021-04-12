@@ -7,8 +7,6 @@ public class ChannelInfo {
     public ChannelInfo(){
     }
 
-
-
     //Maybe make a version that has to be multicast
     public boolean verifyCurrentIP(){
         if(IP == null){

@@ -23,20 +23,6 @@ public class FileInfo {
         this.numberOfChunks = numberOfChunks;
         this.desiredReplicationDegree = desiredReplicationDegree;
     }
-/*
-    public FileInfo(String filePath, String unencryptedFileID, String fileID) {
-        this.filePath = filePath;
-        this.fileID = fileID;
-        this.unencryptedFileID = unencryptedFileID;
-        this.usersBackingUp = new ArrayList<>();
-    }
-
-    public FileInfo(String filePath, String unencryptedFileID, ArrayList<ArrayList<String>> usersBackingUp) throws NoSuchAlgorithmException {
-        this.filePath = filePath;
-        this.fileID = toHexString(getSHA(unencryptedFileID));
-        this.unencryptedFileID = unencryptedFileID;
-        this.usersBackingUp = usersBackingUp;
-    }*/
 
     public FileInfo(String filePath, String unencryptedFileID, int numberOfChunks, int desiredReplicationDegree) {
         try {

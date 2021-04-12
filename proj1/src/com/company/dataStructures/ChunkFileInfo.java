@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 public class ChunkFileInfo {
 
-    // public ArrayList<Integer> chunks = new ArrayList<>();
     public ArrayList<Chunk> chunks = new ArrayList<>();
 
     public ChunkFileInfo(){
@@ -20,10 +19,6 @@ public class ChunkFileInfo {
     }
 
     public boolean chunkExists(int chunkNo){
-        /*for(Integer i: chunks){
-            if (i == chunkNo)
-                return true;
-        }*/
         for (Chunk chunk : chunks) {
             if (chunk.getChunkNo() == chunkNo) {
                 return true;
@@ -31,13 +26,6 @@ public class ChunkFileInfo {
         }
         return false;
     }
-    /*public void addChunk(int chunkNo){
-        for(Integer i: chunks){
-            if (i == chunkNo)
-                return;
-        }
-        chunks.add(chunkNo);
-    }*/
 
     public void addChunk(Chunk chunk) {
         for(Chunk c: chunks){
