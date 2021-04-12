@@ -52,11 +52,6 @@ public class TestApp {
 
             String path = args[2];
 
-            if (!StringVerification.verifyPathExistance(path)) {
-                System.out.println("Path not found: " + path);
-                System.exit(-1);
-            }
-
             new Client(peerAp).restore(path);
         }
 

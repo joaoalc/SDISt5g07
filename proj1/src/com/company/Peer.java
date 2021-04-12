@@ -24,11 +24,6 @@ public class Peer implements IPeerRemote {
 
     public TempFileChunks restoreFileChunks;
 
-    //ArrayList<FileInfo> fileInfos = new ArrayList<FileInfo>();
-
-    // TODO: Fiz a parte de mudar o fileInfos pelo PeerStorage
-    //FileInfos fileInfos = new FileInfos();
-
     private String protocolVersion;
     private MulticastThread MC, MDB, MDR;
     public final String senderID;
@@ -276,10 +271,7 @@ public class Peer implements IPeerRemote {
             return;
         }
         String headerString = protocolVersion + " " + "DELETE" + " " + senderID + " " + fileInfo.fileID;
-/*=======
-        FileInfo fileInfo = new FileInfo(path, unencryptedFileID, numberOfChunks);
-        String headerString = protocolVersion + " " + "DELETE" + " " + senderID + " " + fileInfo.fileID;
->>>>>>> RMI*/
+
         byte[] message = new byte[headerString.length() + 4];
         System.arraycopy(headerString.getBytes(StandardCharsets.US_ASCII), 0, message, 0, headerString.length());
 

@@ -47,7 +47,6 @@ public class MulticastThread extends Thread{
         this.channelType = channelType;
         System.setProperty("file.encoding", "US-ASCII");
 
-
     }
 
     public MulticastSocket getSocket() {
@@ -89,8 +88,6 @@ public class MulticastThread extends Thread{
                 }
                 System.out.println();
                 MulticastResponseHandler packetHandler = new MulticastResponseHandler(senderID, packetData, MC, MDB, MDR, peer.peerStorage, channelType);
-
-                //packetHandler.start();
                 this.peer.threadPool.execute(packetHandler);
             }
 

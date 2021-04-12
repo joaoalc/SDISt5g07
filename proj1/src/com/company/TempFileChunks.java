@@ -22,8 +22,6 @@ public class TempFileChunks {
 
     public void addChunk(byte[] chunk, int chunkNo){
         chunks.put(chunkNo, chunk);
-        System.out.println("Number of values: " + chunks.size());
-        System.out.println("numChunks: " + numChunks);
         if(chunks.size() == numChunks){
             createFile();
         }
