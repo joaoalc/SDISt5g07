@@ -126,7 +126,7 @@ public class Peer implements IPeerRemote {
     }
 
     public void backupChunk(String fileID, int replication, int chunkNo, String version) throws IOException {
-        if(version == "1.0"){
+        if(version.compareTo("1.0") == 0){
             File file = new File(peerStorage.getChunksDirectory(Integer.parseInt(senderID)) + "/" + fileID + "-" + chunkNo);
             if(!file.exists()){
                 throw new FileNotFoundException("File was not found.");
@@ -299,7 +299,8 @@ public class Peer implements IPeerRemote {
     @Override
     public void reclaim(long space) throws IOException {
         ArrayList<Chunk> chunks = new ArrayList<>();
-        if (protocolVersion == "1.0"){
+        if(protocolVersion.compareTo("1.0") == 0){
+            System.out.println("Space available: " + space);
             peerStorage.total_space = space;
             long spaceOccupied = 0;
             for (Map.Entry<String, ChunkFileInfo> file : peerStorage.chunkInfos.chunkInfos.entrySet()) {
@@ -316,8 +317,8 @@ public class Peer implements IPeerRemote {
             chunks.sort(new ChunkComparator());
 
             System.out.println("Number of chunks: " + chunks.size());
-            if(space == 0){
-                while(chunks.size() > 0){
+            if (space == 0) {
+                while (chunks.size() > 0) {
                     System.out.println("Removing file");
                     Chunk removedChunk = chunks.remove(0);
                     String fileID = removedChunk.getFileID();
@@ -341,7 +342,7 @@ public class Peer implements IPeerRemote {
                 }
             }
 
-            while(spaceOccupied > space){
+            while (spaceOccupied > space) {
                 System.out.println("Removing file");
                 Chunk removedChunk = chunks.remove(0);
                 String fileID = removedChunk.getFileID();
@@ -368,6 +369,7 @@ public class Peer implements IPeerRemote {
                 }
             }
         }
+        System.out.println("Space available: " + space);
         peerStorage.chunkInfos.removeEmptyFiles();
         peerStorage.WriteInfoToChunkData();
     }
