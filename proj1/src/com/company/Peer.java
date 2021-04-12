@@ -290,6 +290,7 @@ public class Peer implements IPeerRemote {
 
     @Override
     public void reclaim(long space) throws IOException {
+        System.out.println("START RECLAIM");
         ArrayList<Chunk> chunks = new ArrayList<>();
         if(protocolVersion.compareTo("1.0") == 0){
             System.out.println("Space available: " + space);

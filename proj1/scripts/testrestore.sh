@@ -1,3 +1,3 @@
 #!/bin/bash
 
-./test.sh hello RESTORE ../../files/test/spooky_month_2.gif
+./test.sh hello RESTORE ../../spooky_month.gif 2
