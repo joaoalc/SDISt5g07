@@ -76,7 +76,10 @@ public class MulticastResponseHandler extends Thread{
                 System.out.println("Body size: " + body.length);
 
                 //Check if it can store this file
-                if(body.length + peerStorage.GetOccupiedSpace() > peerStorage.total_space){
+                if(body.length + peerStorage.GetOccupiedSpace() > peerStorage.total_space || peerStorage.total_space == 0){
+                    if(peerStorage.total_space == 0){
+                        System.out.println("This peer has 0 allocated space, which means it can't store any chunks!");
+                    }
                     System.out.println("Not enough space for chunk " + arguments.get(4) + " of file with ID " + arguments.get(3));
                     return;
                 }

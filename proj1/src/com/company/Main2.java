@@ -40,7 +40,7 @@ public class Main2 {
         threadPool.execute(MDB);
         threadPool.execute(MDR);
 
-        System.out.println(peerStorage.getFilesDirectory(Integer.parseInt(senderID)) + "/runnel_thino.png");
-        peer.backup(peerStorage.getFilesDirectory(Integer.parseInt(senderID)) + "/runnel_thino.png", 3);
+        System.out.println(peerStorage.getFilesDirectory(Integer.parseInt(senderID)) + "/chunk");
+        peer.backup(peerStorage.getFilesDirectory(Integer.parseInt(senderID)) + "/chunk", 1);
     }
 }
