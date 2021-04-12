@@ -18,9 +18,9 @@ public class PeerStorage {
 
 
     //Where you read/store files
-    //public final String PEER_FILES_DIR = "files/files/peer-";
+    //public final String PEER_FILES_DIR = "src/build/files/peer-";
     //Where you store chunks of a file
-    //public final String PEER_CHUNKS_DIR = "files/chunks/peer-";
+    //public final String PEER_CHUNKS_DIR = "src/build/chunks/peer-";
 
     //Where you read/store files
     public final String PEER_FILES_DIR = "../../src/build/files/peer-";
@@ -93,7 +93,7 @@ public class PeerStorage {
         }
         else{
             FileOutputStream fileOutputStream = new FileOutputStream(file);
-            fileOutputStream.write(("0 " + DEFAULT_TOTAL_SPACE).getBytes(StandardCharsets.US_ASCII));
+            fileOutputStream.write("0".getBytes(StandardCharsets.US_ASCII));
             return;
         }
 
@@ -190,7 +190,8 @@ public class PeerStorage {
         }
         else{
             FileOutputStream fileOutputStream = new FileOutputStream(file);
-            fileOutputStream.write("0 ".getBytes(StandardCharsets.US_ASCII));
+            fileOutputStream.write(("0 " + DEFAULT_TOTAL_SPACE).getBytes(StandardCharsets.US_ASCII));
+            total_space = DEFAULT_TOTAL_SPACE;
             return;
         }
 

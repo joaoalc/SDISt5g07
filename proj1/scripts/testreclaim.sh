@@ -1,3 +1,3 @@
 #!/bin/bash
 
-./test.sh hello RESTORE 2500
+./test.sh hello RECLAIM 2500
